@@ -14,6 +14,8 @@ export default defineConfig({
     alias: {
       // Alias @ to the src directory
       '@': path.resolve(__dirname, './src'),
+      // Add this line below to fix your image error:
+      'figma:asset': path.resolve(__dirname, './src/assets'),
     },
   },
 })

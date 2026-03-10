@@ -6,7 +6,8 @@ import govInternshipImage from 'figma:asset/e93870b49ef4689a21edf0c29eaac68e821e
 import mncInternshipImage from 'figma:asset/30d88de873583bc5ba134eff63a005d91581ff1d.png';
 import techBgImage from 'figma:asset/43cd3dbee5e6e04eb75362febde5f92fcd719966.png';
 import circuitBoardBg from 'figma:asset/2bae6b290ac3cf7e3d056029eb4fce8ea99d522d.png';
-import newLogo from 'figma:asset/80c744670d16028c953247f2d29cc91590e2d5fc.png';
+// New logo image URL
+const newLogo = 'https://i.pinimg.com/736x/0b/ee/52/0bee520d4fb8b2aaab112febc45bc316.jpg';
 import bgImage from 'figma:asset/888ddc719adc1e1a015741519a4b938ce693442f.png';
 import { useState, useEffect, useCallback, memo, useMemo } from 'react';
 import { 
@@ -19,13 +20,16 @@ import {
   Clock, MapPinned, IndianRupee, CheckCircle2, X, Filter, ExternalLink,
   Zap, TrendingUp as TrendingUpIcon, AlertCircle, Users, BarChart3, 
   Activity, Globe2, MapIcon, Route, BookMarked, CheckSquare, Layers, Volume2,
-  Facebook, Twitter, Instagram, Youtube, Linkedin, Mic, Cloud, UserCircle, Shield, Cog
+  Facebook, Twitter, Instagram, Youtube, Linkedin, Mic, Cloud, UserCircle, Shield, Cog, Download
 } from 'lucide-react';
 import { ImageWithFallback } from './components/figma/ImageWithFallback';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { SearchableSelect } from './components/SearchableSelect';
+import { CountryCodeSelect } from './components/CountryCodeSelect';
+import { AIAssistantPage } from './components/AIAssistantPage';
+import { StudentDashboard } from './components/StudentDashboard';
 
-type Language = 'en' | 'hi' | 'zh' | 'fr' | 'es';
-type Page = 'home' | 'student-login' | 'student-signup' | 'org-login' | 'org-signup' | 'gov-internships' | 'mnc-internships' | 'matched-internships' | 'career-roadmap';
+type Page = 'home' | 'student-login' | 'student-signup' | 'org-login' | 'org-signup' | 'gov-internships' | 'mnc-internships' | 'matched-internships' | 'career-roadmap' | 'ai-assistant' | 'student-dashboard';
 type InternshipMode = 'Remote' | 'In-Office' | 'Hybrid';
 type InternshipCategory = 'All' | 'Technology' | 'Research' | 'Engineering' | 'Design' | 'Business' | 'Data Science';
 
@@ -45,10 +49,10 @@ interface Internship {
   postedDate: string;
   icon: any;
   domains: string[];
+  authenticityScore: number;
 }
 
-const translations = {
-  en: {
+const t = {
     appName: 'InternAI',
     home: 'Home',
     login: 'Login',
@@ -66,6 +70,11 @@ const translations = {
     college: 'College/University',
     degree: 'Degree',
     yearOfStudy: 'Year of Study',
+    apaarId: 'APAAR ID',
+    apaarIdPlaceholder: 'Enter your 12-digit APAAR ID',
+    aadhaarNumber: 'Aadhaar Number',
+    aadhaarPlaceholder: 'Enter your 12-digit Aadhaar',
+    uniqueIdentification: 'Unique Identification',
     orgName: 'Organization Name',
     industry: 'Industry',
     companySize: 'Company Size',
@@ -162,211 +171,6 @@ const translations = {
     learningPath: 'Learning Path',
     viewMatches: 'View Matched Internships',
     matchScore: 'Match Score',
-  },
-  hi: {
-    appName: 'इंटर्नAI',
-    home: 'होम',
-    login: 'लॉगिन',
-    signup: 'साइन अप',
-    studentLogin: 'छात्र लॉगिन',
-    studentSignup: 'छात्र साइन अप',
-    orgLogin: 'संगठन लॉगिन',
-    orgSignup: 'संगठन साइन अप',
-    email: 'ईमेल पता',
-    password: 'पासवर्ड',
-    confirmPassword: 'पासवर्ड की पुष्टि करें',
-    fullName: 'पूरा नाम',
-    phone: 'फोन नंबर',
-    city: 'शहर',
-    college: 'कॉलेज/विश्वविद्यालय',
-    degree: 'डिग्री',
-    yearOfStudy: 'अध्ययन का वर्ष',
-    orgName: 'संगठन का नाम',
-    industry: 'उद्योग',
-    companySize: 'कंपनी का आकार',
-    website: 'वेबसाइट',
-    designation: 'आपका पदनाम',
-    forgotPassword: 'पासवर्ड भूल गए?',
-    loginButton: 'लॉगिन',
-    signupButton: 'खाता बनाएं',
-    alreadyAccount: 'पहले से खाता है?',
-    noAccount: 'खाता नहीं है?',
-    loginHere: 'यहाँ लॉगिन करें',
-    signupHere: 'यहाँ साइन अप करें',
-    orLoginAs: 'या लॉगिन करें',
-    orSignupAs: 'या साइन अप करें',
-    student: 'छात्र',
-    organization: 'संगठन',
-    backToHome: 'होम पर वापस जाएं',
-    uploadResume: 'रिज्यूमे अपलोड करें (PDF/DOCX)',
-    resumeUploaded: 'रिज्यूमे सफलतापूर्वक अपलोड!',
-    dragDrop: 'अपना रिज्यूमे यहां खींचें और छोड़ें या ब्राउज़ करने के लिए क्लिक करें',
-    selectDomains: 'इंटर्नशिप डोमेन चुनें',
-    selectDomainsDesc: 'वे क्षेत्र चुनें जिनमें आप रुचि रखते हैं (एकाधिक चुनें)',
-    tagline: 'स्मार्ट रिज्यूमे स्क्रीनिंग। AI-मैच्ड इंटर्नशिप। व्यक्तिगत करियर रोडमैप।',
-    subtitle: 'अपना रिज्यूमे अपलोड करें और हमारे AI को आपके कौशल का विश्लेषण करने दें, MNC और सरकारी योजनाओं से सर्वोत्तम इंटर्नशिप अवसरों के साथ मिलान करें।',
-    joinStudent: 'छात्र के रूप में जुड़ें',
-    joinOrg: 'संगठन के रूप में जुड़ें',
-    exploreTitle: 'इंटर्नशिप अवसर खोजें',
-    govInternships: 'सरकारी इंटर्नशिप',
-    govDesc: 'PM योजनाएं, PSU, मंत्रालय, अनुसंधान कार्यक्रम',
-    mncInternships: 'MNC और कॉर्पोरेट इंटर्नशिप',
-    mncDesc: 'शीर्ष MNC, स्टार्टअप, वैश्विक कंपनियां',
-    exploreBtn: 'सभी अवसर देखें',
-    howItWorksStudent: 'यह कैसे काम करता है - छात्रों के लिए',
-    howItWorksOrg: 'यह कैसे काम करता है - संगठनों के लिए',
-    studentStep1: 'अपना रिज्यूमे अपलोड करें',
-    studentStep1Desc: 'बस अपना रिज्यूमे PDF या DOCX प्रारूप में अपलोड करें',
-    studentStep2: 'AI विश्लेषण',
-    studentStep2Desc: 'हमारा AI आपके कौशल, अनुभव और क्षमता की स्क्रीनिंग और विश्लेषण करता है',
-    studentStep3: 'मिलान प्राप्त करें',
-    studentStep3Desc: 'अपनी प्रोफ़ाइल के आधार पर व्यक्तिगत इंटर्नशिप सिफारिशें प्राप्त करें',
-    studentStep4: 'सीखें और बढ़ें',
-    studentStep4Desc: 'किसी भी कौशल अंतर को भरने के लिए कस्टम लर्निंग रोडमैप तक पहुँचें',
-    orgStep1: 'इंटर्नशिप पोस्ट करें',
-    orgStep1Desc: 'आवश्यकताओं के साथ विस्तृत इंटर्नशिप लिस्टिंग बनाएं',
-    orgStep2: 'AI स्क्रीनिंग',
-    orgStep2Desc: 'हमारा AI स्वचालित रूप से उम्मीदवारों की जांच और रैंकिंग करता है',
-    orgStep3: 'मिलान की समीक्षा करें',
-    orgStep3Desc: 'विस्तृत विश्लेषण के साथ शीर्ष-मैच उम्मीदवारों तक पहुँचें',
-    orgStep4: 'प्रतिभा को नियुक्त करें',
-    orgStep4Desc: 'अपने संगठन के लिए सर्वोत्तम-फिट उम्मीदवारों से जुड़ें',
-    footer: 'AI द्वारा संचालित • करियर के लिए डिज़ाइन • भारत के लिए निर्मित',
-    about: 'के बारे में',
-    contact: 'संपर्क',
-    privacy: 'गोपनीयता',
-    duration: 'अवधि',
-    location: 'स्थान',
-    stipend: 'वजीफा',
-    mode: 'मोड',
-    deadline: 'समय सीमा',
-    apply: 'आधिकारिक वेबसाइट पर आवेदन करें',
-    viewDetails: 'विवरण देखें',
-    searchPlaceholder: 'इंटर्नशिप खोजें...',
-    filterBy: 'श्रेणी के अनुसार फ़िल्टर करें',
-    allCategories: 'सभी श्रेणियां',
-    sortBy: 'इसके अनुसार क्रमबद्ध करें',
-    endingSoon: 'जल्द समाप्त हो रहा है',
-    newLabel: 'नया',
-    updated: 'अपडेट किया गया',
-    remote: 'रिमोट',
-    inOffice: 'ऑफिस में',
-    hybrid: 'हाइब्रिड',
-    showing: 'दिखा रहे हैं',
-    opportunities: 'अवसर',
-    deadlinePriority: 'निकटतम समय सीमा के अनुसार क्रमबद्ध',
-    analyticsTitle: 'वास्तविक समय प्लेटफार्म विश्लेषिकी',
-    totalInternships: 'कुल इंटर्नशिप',
-    activeStudents: 'सक्रिय छात्र',
-    partneredCompanies: 'भागीदार कंपनियां',
-    successRate: 'सफलता दर',
-    sectorAllocation: 'क्षेत्र आवंटन',
-    countryParticipation: 'देश भागीदारी',
-    stateParticipation: 'राज्य भागीदारी',
-    liveUpdate: 'लाइव अपडेट',
-    resumeMatchTitle: 'रिज्यूमे मैच विश्लेषण',
-    matchedInternships: 'मिलान इंटर्नशिप मिली',
-    noMatches: 'कोई मिलान नहीं',
-    noMatchesDesc: 'आपके रिज्यूमे विश्लेषण के आधार पर, हमें फिलहाल कोई सटीक मिलान नहीं मिला।',
-    viewCareerRoadmap: 'व्यक्तिगत करियर रोडमैप प्राप्त करें',
-    careerRoadmapTitle: 'आपका व्यक्तिगत करियर रोडमैप',
-    careerRoadmapDesc: 'अपने करियर लक्ष्यों को प्राप्त करने के लिए अनुकूलित सीखने का पथ',
-    skillsToLearn: 'सीखने के लिए कौशल',
-    recommendedCourses: 'अनुशंसित पाठ्यक्रम',
-    certifications: 'प्रमाणपत्र',
-    projectIdeas: 'परियोजना विचार',
-    matchScore: 'मैच स्कोर',
-  },
-  zh: {
-    appName: 'InternAI',
-    home: '主页',
-    login: '登录',
-    signup: '注册',
-    studentLogin: '学生登录',
-    studentSignup: '学生注册',
-    orgLogin: '组织登录',
-    orgSignup: '组织注册',
-    email: '电子邮件地址',
-    password: '密码',
-    confirmPassword: '确认密码',
-    fullName: '全名',
-    phone: '电话号码',
-    city: '城市',
-    college: '学院/大学',
-    degree: '学位',
-    yearOfStudy: '学年',
-    tagline: '智能简历筛选。AI匹配实习。个性化职业路线图。',
-    subtitle: '上传您的简历，让我们的AI分析您的技能，将您与最佳实习机会匹配。',
-    joinStudent: '以学生身份加入',
-    joinOrg: '以组织身份加入',
-    resumeMatchTitle: '简历匹配分析',
-    matchedInternships: '找到匹配的实习',
-    noMatches: '没有匹配',
-    viewCareerRoadmap: '获取个性化职业路线图',
-    careerRoadmapTitle: '您的个性化职业路线图',
-    selectDomains: '选择实习领域',
-    backToHome: '返回主页',
-  },
-  fr: {
-    appName: 'InternAI',
-    home: 'Accueil',
-    login: 'Connexion',
-    signup: 'S\'inscrire',
-    studentLogin: 'Connexion Étudiant',
-    studentSignup: 'Inscription Étudiant',
-    orgLogin: 'Connexion Organisation',
-    orgSignup: 'Inscription Organisation',
-    email: 'Adresse e-mail',
-    password: 'Mot de passe',
-    confirmPassword: 'Confirmer le mot de passe',
-    fullName: 'Nom complet',
-    phone: 'Numéro de téléphone',
-    city: 'Ville',
-    college: 'Collège/Université',
-    degree: 'Diplôme',
-    yearOfStudy: 'Année d\'études',
-    tagline: 'Filtrage intelligent de CV. Stages correspondants par IA. Feuilles de route de carrière personnalisées.',
-    subtitle: 'Téléchargez votre CV et laissez notre IA analyser vos compétences et vous faire correspondre aux meilleures opportunités.',
-    joinStudent: 'Rejoindre en tant qu\'étudiant',
-    joinOrg: 'Rejoindre en tant qu\'organisation',
-    resumeMatchTitle: 'Analyse de correspondance de CV',
-    matchedInternships: 'Stages correspondants trouvés',
-    noMatches: 'Aucune correspondance',
-    viewCareerRoadmap: 'Obtenir une feuille de route de carrière personnalisée',
-    careerRoadmapTitle: 'Votre feuille de route de carrière personnalisée',
-    selectDomains: 'Sélectionnez les domaines de stage',
-    backToHome: 'Retour à l\'accueil',
-  },
-  es: {
-    appName: 'InternAI',
-    home: 'Inicio',
-    login: 'Iniciar sesión',
-    signup: 'Registrarse',
-    studentLogin: 'Inicio de sesión de estudiante',
-    studentSignup: 'Registro de estudiante',
-    orgLogin: 'Inicio de sesión de organización',
-    orgSignup: 'Registro de organización',
-    email: 'Dirección de correo electrónico',
-    password: 'Contraseña',
-    confirmPassword: 'Confirmar contraseña',
-    fullName: 'Nombre completo',
-    phone: 'Número de teléfono',
-    city: 'Ciudad',
-    college: 'Colegio/Universidad',
-    degree: 'Título',
-    yearOfStudy: 'Año de estudio',
-    tagline: 'Filtrado inteligente de currículum. Prácticas emparejadas por IA. Hojas de ruta profesionales personalizadas.',
-    subtitle: 'Sube tu currículum y deja que nuestra IA analice tus habilidades y te empareje con las mejores oportunidades.',
-    joinStudent: 'Unirse como estudiante',
-    joinOrg: 'Unirse como organización',
-    resumeMatchTitle: 'Análisis de coincidencia de currículum',
-    matchedInternships: 'Prácticas coincidentes encontradas',
-    noMatches: 'Sin coincidencias',
-    viewCareerRoadmap: 'Obtener hoja de ruta profesional personalizada',
-    careerRoadmapTitle: 'Tu hoja de ruta profesional personalizada',
-    selectDomains: 'Seleccionar dominios de prácticas',
-    backToHome: 'Volver al inicio',
-  },
 };
 
 const internshipDomains = [
@@ -392,42 +196,100 @@ const internshipDomains = [
   'Sales & Marketing',
 ];
 
+// API-driven dropdown data (simulating API responses)
+const countryCodes = [
+  { code: '+91', country: 'India', flag: '🇮🇳' },
+  { code: '+1', country: 'USA/Canada', flag: '🇺🇸' },
+  { code: '+44', country: 'UK', flag: '🇬🇧' },
+  { code: '+61', country: 'Australia', flag: '🇦🇺' },
+  { code: '+65', country: 'Singapore', flag: '🇸🇬' },
+  { code: '+971', country: 'UAE', flag: '🇦🇪' },
+  { code: '+49', country: 'Germany', flag: '🇩🇪' },
+  { code: '+33', country: 'France', flag: '🇫🇷' },
+  { code: '+86', country: 'China', flag: '🇨🇳' },
+];
+
+const countries = [
+  'India', 'United States', 'United Kingdom', 'Canada', 'Australia', 
+  'Singapore', 'United Arab Emirates', 'Germany', 'France', 'China',
+  'Japan', 'Netherlands', 'Switzerland', 'Sweden', 'Others'
+];
+
+const indianCities = [
+  'Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Kolkata', 
+  'Pune', 'Ahmedabad', 'Jaipur', 'Surat', 'Lucknow', 'Kanpur', 
+  'Nagpur', 'Indore', 'Thane', 'Bhopal', 'Visakhapatnam', 'Patna',
+  'Vadodara', 'Ghaziabad', 'Ludhiana', 'Agra', 'Nashik', 'Faridabad',
+  'Meerut', 'Rajkot', 'Kalyan-Dombivali', 'Vasai-Virar', 'Varanasi',
+  'Srinagar', 'Aurangabad', 'Dhanbad', 'Amritsar', 'Navi Mumbai',
+  'Allahabad', 'Ranchi', 'Howrah', 'Coimbatore', 'Jabalpur', 'Gwalior',
+  'Vijayawada', 'Jodhpur', 'Madurai', 'Raipur', 'Kota', 'Others'
+];
+
+const languageOptions = [
+  { code: 'en', name: 'English', native: 'English' },
+  { code: 'hi', name: 'Hindi', native: 'हिन्दी' },
+  { code: 'zh', name: 'Chinese', native: '中文' },
+  { code: 'fr', name: 'French', native: 'Français' },
+  { code: 'es', name: 'Spanish', native: 'Español' },
+  { code: 'ar', name: 'Arabic', native: 'العربية' },
+  { code: 'de', name: 'German', native: 'Deutsch' },
+  { code: 'ja', name: 'Japanese', native: '日本語' },
+];
+
+const colleges = [
+  'IIT Bombay', 'IIT Delhi', 'IIT Madras', 'IIT Kanpur', 'IIT Kharagpur',
+  'IIT Roorkee', 'IIT Guwahati', 'IIT Hyderabad', 'NIT Trichy', 'NIT Warangal',
+  'NIT Surathkal', 'NIT Calicut', 'IIIT Hyderabad', 'IIIT Bangalore', 'IIIT Delhi',
+  'Delhi University (DU)', 'NSUT', 'DTU', 'JNU', 'BITS Pilani', 'VIT',
+  'SRM University', 'Manipal University', 'Amity University', 'Symbiosis',
+  'Christ University', 'University of Toronto', 'University of British Columbia',
+  'National University of Singapore (NUS)', 'Nanyang Technological University (NTU)',
+  'University of Melbourne', 'University of Sydney', 'University of Oxford',
+  'University of Cambridge', 'Harvard University', 'Stanford University', 'MIT'
+];
+
+const degrees = [
+  'B.Tech / B.E.', 'M.Tech / M.E.', 'B.Sc', 'M.Sc', 'BCA', 'MCA',
+  'BBA', 'MBA', 'BA', 'MA', 'B.Com', 'M.Com', 'LLB', 'LLM', 'MBBS'
+];
+
 // Analytics Data
 const sectorData = [
-  { name: 'Information Technology', value: 22, color: '#4F46E5' },
-  { name: 'Digital India', value: 13, color: '#06B6D4' },
-  { name: 'Research & Development', value: 10, color: '#8B5CF6' },
-  { name: 'Engineering', value: 15, color: '#F59E0B' },
-  { name: 'Data Science & AI', value: 28, color: '#10B981' },
-  { name: 'Business & Consulting', value: 7, color: '#EF4444' },
-  { name: 'Design & Creative', value: 5, color: '#EC4899' },
+  { name: 'Information Technology', value: 22, color: '#4F46E5', id: 'sector-1' },
+  { name: 'Digital India', value: 13, color: '#06B6D4', id: 'sector-2' },
+  { name: 'Research & Development', value: 10, color: '#8B5CF6', id: 'sector-3' },
+  { name: 'Engineering', value: 15, color: '#F59E0B', id: 'sector-4' },
+  { name: 'Data Science & AI', value: 28, color: '#10B981', id: 'sector-5' },
+  { name: 'Business & Consulting', value: 7, color: '#EF4444', id: 'sector-6' },
+  { name: 'Design & Creative', value: 5, color: '#EC4899', id: 'sector-7' },
 ];
 
 const countryData = [
-  { name: 'India', students: 7500000 },
-  { name: 'USA', students: 15000000 },
-  { name: 'UK', students: 3200000 },
-  { name: 'Canada', students: 2100000 },
-  { name: 'Australia', students: 1600000 },
-  { name: 'Germany', students: 3000000 },
-  { name: 'Singapore', students: 1200000 },
-  { name: 'Others', students: 5400000 },
+  { name: 'India', students: 7500000, id: 'country-1' },
+  { name: 'USA', students: 15000000, id: 'country-2' },
+  { name: 'UK', students: 3200000, id: 'country-3' },
+  { name: 'Canada', students: 2100000, id: 'country-4' },
+  { name: 'Australia', students: 1600000, id: 'country-5' },
+  { name: 'Germany', students: 3000000, id: 'country-6' },
+  { name: 'Singapore', students: 1200000, id: 'country-7' },
+  { name: 'Others', students: 5400000, id: 'country-8' },
 ];
 
 const stateData = [
-  { name: 'Karnataka', students: 1200000 },
-  { name: 'Maharashtra', students: 1100000 },
-  { name: 'Telangana', students: 850000 },
-  { name: 'Tamil Nadu', students: 900000 },
-  { name: 'Delhi NCR', students: 1000000 },
-  { name: 'Uttar Pradesh', students: 750000 },
-  { name: 'Gujarat', students: 600000 },
-  { name: 'West Bengal', students: 500000 },
-  { name: 'Kerala', students: 450000 },
-  { name: 'Rajasthan', students: 400000 },
-  { name: 'Madhya Pradesh', students: 350000 },
-  { name: 'Punjab & Haryana', students: 450000 },
-  { name: 'Other States', students: 700000 },
+  { name: 'Karnataka', students: 1200000, id: 'state-1' },
+  { name: 'Maharashtra', students: 1100000, id: 'state-2' },
+  { name: 'Telangana', students: 850000, id: 'state-3' },
+  { name: 'Tamil Nadu', students: 900000, id: 'state-4' },
+  { name: 'Delhi NCR', students: 1000000, id: 'state-5' },
+  { name: 'Uttar Pradesh', students: 750000, id: 'state-6' },
+  { name: 'Gujarat', students: 600000, id: 'state-7' },
+  { name: 'West Bengal', students: 500000, id: 'state-8' },
+  { name: 'Kerala', students: 455000, id: 'state-9' },
+  { name: 'Rajasthan', students: 400000, id: 'state-10' },
+  { name: 'Madhya Pradesh', students: 350000, id: 'state-11' },
+  { name: 'Punjab & Haryana', students: 445000, id: 'state-12' },
+  { name: 'Other States', students: 700000, id: 'state-13' },
 ];
 
 const generateInternshipData = (): Internship[] => {
@@ -455,6 +317,7 @@ const generateInternshipData = (): Internship[] => {
       postedDate: new Date().toISOString().split('T')[0],
       icon: Rocket,
       domains: ['Data Science & AI', 'Research & Development'],
+      authenticityScore: 98,
     },
     {
       id: 2,
@@ -472,6 +335,7 @@ const generateInternshipData = (): Internship[] => {
       postedDate: new Date().toISOString().split('T')[0],
       icon: Shield,
       domains: ['Cybersecurity'],
+      authenticityScore: 96,
     },
     {
       id: 3,
@@ -489,6 +353,7 @@ const generateInternshipData = (): Internship[] => {
       postedDate: addDays(-10),
       icon: Database,
       domains: ['Data Science & AI', 'Research & Development'],
+      authenticityScore: 94,
     },
     {
       id: 4,
@@ -506,6 +371,7 @@ const generateInternshipData = (): Internship[] => {
       postedDate: addDays(-5),
       icon: Globe,
       domains: ['Web Development', 'Software Development'],
+      authenticityScore: 92,
     },
     {
       id: 5,
@@ -523,6 +389,7 @@ const generateInternshipData = (): Internship[] => {
       postedDate: addDays(-7),
       icon: Cog,
       domains: ['Mechanical Engineering'],
+      authenticityScore: 88,
     },
     {
       id: 6,
@@ -540,6 +407,7 @@ const generateInternshipData = (): Internship[] => {
       postedDate: addDays(-1),
       icon: Code,
       domains: ['Software Development', 'Cloud Computing'],
+      authenticityScore: 97,
     },
     {
       id: 7,
@@ -557,6 +425,7 @@ const generateInternshipData = (): Internship[] => {
       postedDate: addDays(-3),
       icon: Code,
       domains: ['Software Development', 'Web Development'],
+      authenticityScore: 95,
     },
     {
       id: 8,
@@ -574,6 +443,7 @@ const generateInternshipData = (): Internship[] => {
       postedDate: addDays(-6),
       icon: Palette,
       domains: ['UI/UX Design', 'Graphic Design'],
+      authenticityScore: 78,
     },
     {
       id: 9,
@@ -591,6 +461,7 @@ const generateInternshipData = (): Internship[] => {
       postedDate: addDays(-12),
       icon: LineChart,
       domains: ['Business Analytics', 'Product Management'],
+      authenticityScore: 65,
     },
     {
       id: 10,
@@ -608,12 +479,804 @@ const generateInternshipData = (): Internship[] => {
       postedDate: addDays(-4),
       icon: Cloud,
       domains: ['Cloud Computing', 'Software Development'],
+      authenticityScore: 91,
     },
   ];
 };
+// PASTE THIS ABOVE YOUR App FUNCTION
+
+const StudentLoginPage = ({ 
+  email, 
+  onEmailChange, 
+  password, 
+  onPasswordChange, 
+  showPassword, 
+  setShowPassword, 
+  setCurrentPage, 
+  t 
+}: any) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, nextFieldId?: string) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (nextFieldId) {
+        const nextField = document.getElementById(nextFieldId);
+        if (nextField) {
+          nextField.focus();
+        }
+      }
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4 py-20">
+      <div className="max-w-md w-full bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl p-10">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center size-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl mb-4">
+            <GraduationCap className="size-8 text-white" />
+          </div>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">{t.studentLogin}</h2>
+          <p className="text-gray-600">Welcome back, student!</p>
+        </div>
+
+        <form className="space-y-6">
+          <div>
+            <label className="block text-gray-700 mb-2 font-medium text-sm">{t.email}</label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+              <input 
+                id="login-email"
+                type="email"
+                value={email}
+                onChange={onEmailChange}
+                className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all"
+                placeholder="student@example.com"
+                autoComplete="email"
+                spellCheck="false"
+                onKeyDown={(e) => handleKeyDown(e, 'login-password')}
+                aria-label="Email address"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-gray-700 mb-2 font-medium text-sm">{t.password}</label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+              <input 
+                id="login-password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={onPasswordChange}
+                className="w-full pl-11 pr-11 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all"
+                placeholder="••••••••"
+                autoComplete="current-password"
+                spellCheck="false"
+                aria-label="Password"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const form = e.currentTarget.form;
+                    if (form) {
+                      form.requestSubmit();
+                    }
+                  }
+                }}
+              />
+              <button 
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
+              </button>
+            </div>
+          </div>
+
+          <div className="text-right">
+            <button type="button" className="text-indigo-600 hover:text-indigo-700 text-sm font-medium">
+              {t.forgotPassword}
+            </button>
+          </div>
+
+          <button 
+            type="submit"
+            className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-lg transition-all font-medium"
+          >
+            {t.loginButton}
+          </button>
+        </form>
+
+        <div className="mt-6 text-center">
+          <p className="text-gray-600 text-sm">
+            {t.noAccount}{' '}
+            <button 
+              onClick={() => setCurrentPage('student-signup')}
+              className="text-indigo-600 hover:text-indigo-700 font-medium"
+            >
+              {t.signupHere}
+            </button>
+          </p>
+        </div>
+
+        <div className="mt-6 text-center">
+          <p className="text-gray-500 text-xs mb-3">{t.orLoginAs}</p>
+          <button 
+            onClick={() => setCurrentPage('org-login')}
+            className="flex items-center justify-center gap-2 w-full py-2 border-2 border-gray-200 rounded-xl hover:bg-gray-50 text-gray-700 transition-all"
+          >
+            <Building2 className="size-5" />
+            <span className="font-medium">{t.organization}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+// PASTE THIS ABOVE YOUR App FUNCTION
+
+const StudentSignupPage = ({
+  t,
+  setCurrentPage,
+  setSignupUserData,
+  hasResumeUploaded,
+  selectedDomains,
+  matchedInternships,
+  countryCodes,
+  colleges,
+  indianCities,
+  degrees,
+  ResumeUploadSection, // Passed as a rendered element
+  DomainSelectorSection // Passed as a rendered element
+}: any) => {
+  // We moved all the local form state INSIDE this component!
+  const [fullName, setFullName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [countryCode, setCountryCode] = useState('+91');
+  const [college, setCollege] = useState('');
+  const [collegeOther, setCollegeOther] = useState('');
+  const [city, setCity] = useState('');
+  const [cityOther, setCityOther] = useState('');
+  const [degree, setDegree] = useState('');
+  const [degreeOther, setDegreeOther] = useState('');
+  const [year, setYear] = useState('1st Year');
+  const [apaarId, setApaarId] = useState('');
+  const [aadhaar, setAadhaar] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [signupSuccess, setSignupSuccess] = useState(false);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>, nextFieldId?: string) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (nextFieldId) {
+        const nextField = document.getElementById(nextFieldId);
+        if (nextField) {
+          nextField.focus();
+        }
+      }
+    }
+  }, []);
+
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4 py-20">
+      <div className="max-w-3xl w-full bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl p-10">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center size-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl mb-4">
+            <GraduationCap className="size-8 text-white" />
+          </div>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">{t.studentSignup}</h2>
+          <p className="text-gray-600">Start your career journey today!</p>
+        </div>
+
+        <form className="space-y-6">
+          {ResumeUploadSection}
+          {DomainSelectorSection}
+
+          <div>
+            <label className="block text-gray-700 mb-2 font-medium text-sm">{t.fullName}</label>
+            <div className="relative">
+              <User className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+              <input 
+                id="signup-fullname"
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all"
+                placeholder="Rahul Kumar"
+                autoComplete="name"
+                onKeyDown={(e) => handleKeyDown(e, 'signup-email')}
+                aria-label="Full name"
+              />
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-gray-700 mb-2 font-medium text-sm">{t.email}</label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+                <input 
+                  id="signup-email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all"
+                  placeholder="student@example.com"
+                  autoComplete="email"
+                  spellCheck="false"
+                  onKeyDown={(e) => handleKeyDown(e, 'signup-phone')}
+                  aria-label="Email address"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-gray-700 mb-2 font-medium text-sm">{t.phone}</label>
+              <div className="relative flex">
+                <CountryCodeSelect 
+                  options={countryCodes}
+                  value={countryCode}
+                  onChange={setCountryCode}
+                />
+                <input 
+                  id="signup-phone"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  type="tel"
+                  className="flex-1 pl-4 pr-4 py-3 border-2 border-gray-200 rounded-r-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all"
+                  placeholder="98765 43210"
+                  autoComplete="tel"
+                  onKeyDown={(e) => handleKeyDown(e, 'signup-college')}
+                  aria-label="Phone number"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <SearchableSelect
+              options={colleges}
+              value={college}
+              onChange={(value: string) => {
+                setCollege(value);
+                if (value !== 'Others') setCollegeOther('');
+              }}
+              placeholder="Select College/University"
+              label={t.college}
+              icon={BookOpen}
+              showOther={true}
+              onOtherChange={setCollegeOther}
+              otherValue={collegeOther}
+              id="signup-college"
+              onKeyDown={(e: any) => handleKeyDown(e, college === 'Others' ? 'signup-college-other' : 'signup-city')}
+            />
+
+            <SearchableSelect
+              options={indianCities}
+              value={city}
+              onChange={(value: string) => {
+                setCity(value);
+                if (value !== 'Others') setCityOther('');
+              }}
+              placeholder="Select City"
+              label={t.city}
+              icon={MapPin}
+              showOther={true}
+              onOtherChange={setCityOther}
+              otherValue={cityOther}
+              id="signup-city"
+              onKeyDown={(e: any) => handleKeyDown(e, city === 'Others' ? 'signup-city-other' : 'signup-degree')}
+            />
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <SearchableSelect
+              options={degrees}
+              value={degree}
+              onChange={(value: string) => {
+                setDegree(value);
+                if (value !== 'Others') setDegreeOther('');
+              }}
+              placeholder="Select Degree"
+              label={t.degree}
+              showOther={true}
+              onOtherChange={setDegreeOther}
+              otherValue={degreeOther}
+              id="signup-degree"
+              onKeyDown={(e: any) => handleKeyDown(e, degree === 'Others' ? 'signup-degree-other' : 'signup-year')}
+            />
+
+            <div>
+              <label className="block text-gray-700 mb-2 font-medium text-sm">{t.yearOfStudy}</label>
+              <select 
+                id="signup-year"
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+                className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all"
+                onKeyDown={(e) => handleKeyDown(e, 'signup-apaar')}
+                aria-label="Year of study"
+              >
+                <option>1st Year</option>
+                <option>2nd Year</option>
+                <option>3rd Year</option>
+                <option>4th Year</option>
+                <option>Final Year</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-gray-700 mb-2 font-medium text-sm">{t.apaarId}</label>
+              <div className="relative">
+                <Shield className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+                <input 
+                  id="signup-apaar"
+                  type="text"
+                  value={apaarId}
+                  onChange={(e) => setApaarId(e.target.value.replace(/\D/g, '').slice(0, 12))}
+                  className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 bg-white rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all"
+                  placeholder={t.apaarIdPlaceholder}
+                  maxLength={12}
+                  onKeyDown={(e) => handleKeyDown(e, 'signup-aadhaar')}
+                  aria-label="APAAR ID"
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-1">12-digit unique student identification</p>
+            </div>
+
+            <div>
+              <label className="block text-gray-700 mb-2 font-medium text-sm">{t.aadhaarNumber}</label>
+              <div className="relative">
+                <Shield className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+                <input 
+                  id="signup-aadhaar"
+                  type="text"
+                  value={aadhaar}
+                  onChange={(e) => setAadhaar(e.target.value.replace(/\D/g, '').slice(0, 12))}
+                  className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 bg-white rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all"
+                  placeholder={t.aadhaarPlaceholder}
+                  maxLength={12}
+                  onKeyDown={(e) => handleKeyDown(e, 'signup-password')}
+                  aria-label="Aadhaar Number"
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-1">12-digit Aadhaar number for verification</p>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-gray-700 mb-2 font-medium text-sm">{t.password}</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+                <input 
+                  id="signup-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  type={showPassword ? "text" : "password"}
+                  className="w-full pl-11 pr-11 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all"
+                  placeholder="••••••••"
+                  autoComplete="new-password"
+                  spellCheck="false"
+                  onKeyDown={(e) => handleKeyDown(e, 'signup-confirmpassword')}
+                  aria-label="Password"
+                />
+                <button 
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-gray-700 mb-2 font-medium text-sm">{t.confirmPassword}</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+                <input 
+                  id="signup-confirmpassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all"
+                  placeholder="••••••••"
+                  autoComplete="new-password"
+                  spellCheck="false"
+                  aria-label="Confirm password"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const form = e.currentTarget.form;
+                      if (form) form.requestSubmit();
+                    }
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-r from-indigo-50 to-blue-50 border-2 border-indigo-200 rounded-xl p-4">
+            <p className="text-sm font-semibold text-gray-800 mb-3">Signup Progress</p>
+            <div className="space-y-2">
+              <div className={`flex items-center gap-2 text-sm ${hasResumeUploaded ? 'text-green-700' : 'text-gray-500'}`}>
+                {hasResumeUploaded ? <CheckCircle2 className="size-4 text-green-600" /> : <div className="size-4 border-2 border-gray-400 rounded-full" />}
+                <span className={hasResumeUploaded ? 'font-medium' : ''}>Resume Uploaded</span>
+              </div>
+              <div className={`flex items-center gap-2 text-sm ${selectedDomains.length > 0 ? 'text-green-700' : 'text-gray-500'}`}>
+                {selectedDomains.length > 0 ? <CheckCircle2 className="size-4 text-green-600" /> : <div className="size-4 border-2 border-gray-400 rounded-full" />}
+                <span className={selectedDomains.length > 0 ? 'font-medium' : ''}>
+                  Domains Selected {selectedDomains.length > 0 && `(${selectedDomains.length})`}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {!hasResumeUploaded && (
+            <div className="bg-amber-50 border-2 border-amber-200 rounded-xl p-4 flex items-start gap-3">
+              <AlertCircle className="size-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-amber-800 font-medium text-sm">Resume Required</p>
+                <p className="text-amber-700 text-xs mt-1">Please upload your resume to continue with signup</p>
+              </div>
+            </div>
+          )}
+
+          {hasResumeUploaded && selectedDomains.length === 0 && (
+            <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 flex items-start gap-3">
+              <AlertCircle className="size-5 text-blue-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="text-blue-800 font-medium text-sm">Select Your Domains</p>
+                <p className="text-blue-700 text-xs mt-1">Choose at least one domain of interest above</p>
+              </div>
+            </div>
+          )}
+
+          <button
+            type="submit"
+            onClick={(e) => {
+              e.preventDefault();
+              if (!fullName.trim()) return alert('Please enter your full name');
+              if (!email.trim()) return alert('Please enter your email address');
+              if (!phone.trim()) return alert('Please enter your phone number');
+              if (!college.trim() || (college === 'Others' && !collegeOther.trim())) return alert('Please select or enter your college/university');
+              if (!city.trim() || (city === 'Others' && !cityOther.trim())) return alert('Please select or enter your city');
+              if (!degree.trim() || (degree === 'Others' && !degreeOther.trim())) return alert('Please select or enter your degree');
+              if (!year.trim()) return alert('Please select your year of study');
+              if (!apaarId.trim() || apaarId.length !== 12) return alert('APAAR ID must be exactly 12 digits');
+              if (!aadhaar.trim() || aadhaar.length !== 12) return alert('Aadhaar number must be exactly 12 digits');
+              if (!password.trim()) return alert('Please enter a password');
+              if (!confirmPassword.trim()) return alert('Please confirm your password');
+              if (password !== confirmPassword) return alert('Passwords do not match');
+              if (!hasResumeUploaded) return alert('Please upload your resume to continue');
+              if (selectedDomains.length === 0) return alert('Please select at least one domain of interest');
+
+              setSignupUserData({
+                fullName,
+                email,
+                phone: countryCode + phone,
+                college: college === 'Others' ? collegeOther : college,
+                city: city === 'Others' ? cityOther : city,
+                degree: degree === 'Others' ? degreeOther : degree,
+                year,
+                apaarId,
+                aadhaar,
+                domains: selectedDomains,
+                resumeUploaded: hasResumeUploaded,
+                matchedCount: matchedInternships.length
+              });
+              setSignupSuccess(true);
+            }}
+            className={`w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-lg transition-all font-medium ${
+              !hasResumeUploaded || selectedDomains.length === 0 
+                ? 'opacity-50 cursor-not-allowed' 
+                : 'hover:from-blue-700 hover:to-indigo-700'
+            }`}
+          >
+            {t.signupButton}
+          </button>
+        </form>
+
+        <div className="mt-6 text-center">
+          <p className="text-gray-600 text-sm">
+            {t.alreadyAccount}{' '}
+            <button 
+              onClick={() => setCurrentPage('student-login')}
+              className="text-indigo-600 hover:text-indigo-700 font-medium"
+            >
+              {t.loginHere}
+            </button>
+          </p>
+        </div>
+
+        <div className="mt-4 flex justify-center gap-4">
+          <button 
+            onClick={() => setCurrentPage('home')}
+            className="px-6 py-2.5 bg-white/80 backdrop-blur-md text-gray-800 rounded-full border border-gray-200 shadow-sm hover:bg-white hover:shadow-md transition-all font-medium flex items-center gap-2"
+          >
+            <Home className="size-5" />
+            <span>{t.backToHome}</span>
+          </button>
+          <button 
+            onClick={() => setCurrentPage('ai-assistant')}
+            className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-full border border-purple-400 shadow-md hover:shadow-lg transition-all font-medium flex items-center gap-2"
+          >
+            <Sparkles className="size-5" />
+            <span>AI Assistant</span>
+          </button>
+        </div>
+      </div>
+      
+      {/* Signup Success Modal */}
+      {signupSuccess && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center px-4">
+          <div className="bg-white rounded-3xl shadow-2xl p-10 max-w-md w-full">
+            <div className="text-center">
+              <div className="inline-flex items-center justify-center size-20 bg-gradient-to-br from-green-400 to-emerald-600 rounded-full mb-6 animate-bounce">
+                <CheckCircle2 className="size-10 text-white" />
+              </div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-3">Account Created Successfully!</h2>
+              <p className="text-gray-600 text-lg mb-8">Your account has been created successfully. Get started with your personalized dashboard!</p>
+              <button
+                onClick={() => {
+                  setSignupSuccess(false);
+                  setCurrentPage('student-dashboard');
+                }}
+                className="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:shadow-lg transition-all font-semibold text-lg flex items-center justify-center gap-2"
+              >
+                Go to Student Dashboard
+                <ArrowRight className="size-6" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+// PASTE THIS ABOVE YOUR App FUNCTION
+// PASTE THIS OUTSIDE AND ABOVE 'export default function App()'
+
+const OrganizationLoginPage = ({ t, setCurrentPage }: any) => {
+  // States moved INSIDE the component
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, nextFieldId?: string) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (nextFieldId) {
+        document.getElementById(nextFieldId)?.focus();
+      }
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4 py-20">
+      <div className="max-w-md w-full bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl p-10">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center size-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl mb-4">
+            <Building2 className="size-8 text-white" />
+          </div>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">{t.orgLogin}</h2>
+          <p className="text-gray-600">Find the perfect talent!</p>
+        </div>
+
+        <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); console.log("Org Login:", { email, password }); }}>
+          <div>
+            <label className="block text-gray-700 mb-2 font-medium text-sm">{t.email}</label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+              <input 
+                id="org-login-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-100 focus:outline-none transition-all"
+                placeholder="hr@company.com"
+                autoComplete="email"
+                spellCheck="false"
+                onKeyDown={(e) => handleKeyDown(e, 'org-login-password')}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-gray-700 mb-2 font-medium text-sm">{t.password}</label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+              <input 
+                id="org-login-password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full pl-11 pr-11 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-100 focus:outline-none transition-all"
+                placeholder="••••••••"
+                autoComplete="current-password"
+                spellCheck="false"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    e.currentTarget.form?.requestSubmit();
+                  }
+                }}
+              />
+              <button 
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
+              </button>
+            </div>
+          </div>
+
+          <button 
+            type="submit"
+            className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:shadow-lg transition-all font-medium"
+          >
+            {t.loginButton}
+          </button>
+        </form>
+
+        <div className="mt-6 text-center">
+          <p className="text-gray-600 text-sm">
+            {t.noAccount}{' '}
+            <button 
+              onClick={() => setCurrentPage('org-signup')}
+              className="text-purple-600 hover:text-purple-700 font-medium"
+            >
+              {t.signupHere}
+            </button>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const OrganizationSignupPage = ({ t, setCurrentPage }: any) => {
+  // States moved INSIDE the component
+  const [orgName, setOrgName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  return (
+    <div className="min-h-screen flex items-center justify-center px-4 py-20">
+      <div className="max-w-2xl w-full bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl p-10">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center size-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl mb-4">
+            <Building2 className="size-8 text-white" />
+          </div>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">{t.orgSignup}</h2>
+          <p className="text-gray-600">Hire the best interns!</p>
+        </div>
+
+        <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); console.log("Org Signup"); }}>
+          <div>
+            <label className="block text-gray-700 mb-2 font-medium text-sm">{t.orgName}</label>
+            <div className="relative">
+              <Building className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+              <input 
+                type="text"
+                value={orgName}
+                onChange={(e) => setOrgName(e.target.value)}
+                className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-100 focus:outline-none transition-all"
+                placeholder="Tech Corp India"
+              />
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-gray-700 mb-2 font-medium text-sm">{t.email}</label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+                <input 
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-100 focus:outline-none transition-all"
+                  placeholder="hr@company.com"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-gray-700 mb-2 font-medium text-sm">{t.phone}</label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+                <input 
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-100 focus:outline-none transition-all"
+                  placeholder="+91 98765 43210"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-gray-700 mb-2 font-medium text-sm">{t.password}</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+                <input 
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full pl-11 pr-11 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-100 focus:outline-none transition-all"
+                  placeholder="••••••••"
+                />
+                <button 
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                >
+                  {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-gray-700 mb-2 font-medium text-sm">{t.confirmPassword}</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
+                <input 
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-100 focus:outline-none transition-all"
+                  placeholder="••••••••"
+                />
+              </div>
+            </div>
+          </div>
+
+          <button 
+            type="submit"
+            className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:shadow-lg transition-all font-medium"
+          >
+            {t.signupButton}
+          </button>
+        </form>
+
+        <div className="mt-6 text-center">
+          <p className="text-gray-600 text-sm">
+            {t.alreadyAccount}{' '}
+            <button 
+              onClick={() => setCurrentPage('org-login')}
+              className="text-purple-600 hover:text-purple-700 font-medium"
+            >
+              {t.loginHere}
+            </button>
+          </p>
+        </div>
+
+        <div className="mt-4 text-center">
+          <button 
+            onClick={() => setCurrentPage('home')}
+            className="px-6 py-2.5 bg-white/80 backdrop-blur-md text-gray-800 rounded-full border border-gray-200 shadow-sm hover:bg-white hover:shadow-md transition-all font-medium flex items-center gap-2 mx-auto"
+          >
+            <Home className="size-5" />
+            <span>{t.backToHome}</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function App() {
-  const [language, setLanguage] = useState<Language>('en');
   const [currentPage, setCurrentPage] = useState<Page>('home');
   const [showPassword, setShowPassword] = useState(false);
   const [resumeFile, setResumeFile] = useState<File | null>(null);
@@ -631,6 +1294,12 @@ export default function App() {
     partneredCompanies: 1247,
     successRate: 87.5,
   });
+  
+  // New state for chart view and download
+  const [showMatchChart, setShowMatchChart] = useState(false);
+  const [isDownloadingRoadmap, setIsDownloadingRoadmap] = useState(false);
+  const [downloadComplete, setDownloadComplete] = useState(false);
+  const [countryCode, setCountryCode] = useState('+91');
 
   // Accessibility Features
   const [isHighContrast, setIsHighContrast] = useState(false);
@@ -655,6 +1324,8 @@ export default function App() {
   const [studentSignupDegree, setStudentSignupDegree] = useState('');
   const [studentSignupDegreeOther, setStudentSignupDegreeOther] = useState('');
   const [studentSignupYear, setStudentSignupYear] = useState('1st Year');
+  const [studentSignupApaarId, setStudentSignupApaarId] = useState('');
+  const [studentSignupAadhaar, setStudentSignupAadhaar] = useState('');
   const [studentSignupPassword, setStudentSignupPassword] = useState('');
   const [studentSignupConfirmPassword, setStudentSignupConfirmPassword] = useState('');
 
@@ -672,22 +1343,25 @@ export default function App() {
   const [orgSignupPassword, setOrgSignupPassword] = useState('');
   const [orgSignupConfirmPassword, setOrgSignupConfirmPassword] = useState('');
   
-  const t = new Proxy(translations[language], {
-    get: (target, prop) => {
-      return target[prop as keyof typeof target] || translations.en[prop as keyof typeof translations.en] || String(prop);
-    }
-  });
+  // Signup Success State
+  const [signupSuccess, setSignupSuccess] = useState(false);
+  const [signupUserData, setSignupUserData] = useState<any>(null);
+  
+  // AI Assistant State
+  const [aiQuery, setAiQuery] = useState('');
+  const [aiConversation, setAiConversation] = useState<Array<{role: 'user' | 'assistant', message: string}>>([]);
+  
 
   // Text-to-Speech Function
   const speak = useCallback((text: string) => {
     if (isTextToSpeechEnabled && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel();
       const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = language === 'hi' ? 'hi-IN' : 'en-US';
+      utterance.lang = 'en-US';
       utterance.rate = 0.9;
       window.speechSynthesis.speak(utterance);
     }
-  }, [isTextToSpeechEnabled, language]);
+  }, [isTextToSpeechEnabled]);
 
   useEffect(() => {
     const data = generateInternshipData();
@@ -755,6 +1429,45 @@ export default function App() {
         ? prev.filter(d => d !== domain)
         : [...prev, domain]
     );
+  }, []);
+
+  // Stable input handlers to prevent cursor jumping
+  const handleStudentLoginEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setStudentLoginEmail(e.target.value);
+  }, []);
+
+  const handleStudentLoginPasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setStudentLoginPassword(e.target.value);
+  }, []);
+
+  const handleStudentSignupFullNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setStudentSignupFullName(e.target.value);
+  }, []);
+
+  const handleStudentSignupEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setStudentSignupEmail(e.target.value);
+  }, []);
+
+  const handleStudentSignupPhoneChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setStudentSignupPhone(e.target.value);
+  }, []);
+
+  const handleStudentSignupPasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setStudentSignupPassword(e.target.value);
+  }, []);
+
+  const handleStudentSignupConfirmPasswordChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setStudentSignupConfirmPassword(e.target.value);
+  }, []);
+
+  const handleStudentSignupApaarIdChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 12);
+    setStudentSignupApaarId(value);
+  }, []);
+
+  const handleStudentSignupAadhaarChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value.replace(/\D/g, '').slice(0, 12);
+    setStudentSignupAadhaar(value);
   }, []);
 
   // Accessibility Toolbar Component
@@ -902,19 +1615,15 @@ export default function App() {
       const progressInterval = setInterval(() => {
         currentStep++;
         
-        // Simulate realistic upload curve (faster at start, slower at end)
+        // Simulate realistic upload curve
         let progress;
         if (currentStep < totalSteps * 0.3) {
-          // Fast initial progress (0-30%)
           progress = (currentStep / (totalSteps * 0.3)) * 30;
         } else if (currentStep < totalSteps * 0.7) {
-          // Medium progress (30-70%)
           progress = 30 + ((currentStep - totalSteps * 0.3) / (totalSteps * 0.4)) * 40;
         } else if (currentStep < totalSteps * 0.95) {
-          // Slower progress (70-95%)
           progress = 70 + ((currentStep - totalSteps * 0.7) / (totalSteps * 0.25)) * 25;
         } else {
-          // Final progress (95-100%)
           progress = 95 + ((currentStep - totalSteps * 0.95) / (totalSteps * 0.05)) * 5;
         }
         
@@ -1090,11 +1799,11 @@ export default function App() {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setCurrentPage('home')}>
-            <div className="relative size-14">
+            <div className="relative size-14 rounded-lg overflow-hidden">
               <img 
                 src={newLogo} 
                 alt="InternAI Logo" 
-                className="size-full object-contain group-hover:scale-110 transition-transform"
+                className="size-full object-cover aspect-square group-hover:scale-110 transition-transform"
               />
             </div>
             <span className="text-2xl font-bold bg-gradient-to-r from-blue-300 via-purple-300 to-indigo-300 bg-clip-text text-transparent">
@@ -1103,21 +1812,6 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 bg-white/80 backdrop-blur-md rounded-full px-4 py-2 border border-gray-200 shadow-sm">
-              <Languages className="size-4 text-gray-700" />
-              <select 
-                value={language} 
-                onChange={(e) => setLanguage(e.target.value as Language)}
-                className="bg-transparent border-none outline-none cursor-pointer text-sm text-gray-800 font-medium"
-              >
-                <option value="en" className="bg-white text-gray-800">English</option>
-                <option value="hi" className="bg-white text-gray-800">हिन्दी</option>
-                <option value="zh" className="bg-white text-gray-800">中文</option>
-                <option value="fr" className="bg-white text-gray-800">Français</option>
-                <option value="es" className="bg-white text-gray-800">Español</option>
-              </select>
-            </div>
-
             {currentPage !== 'home' && (
               <button 
                 onClick={() => setCurrentPage('home')}
@@ -1196,6 +1890,17 @@ export default function App() {
     const daysLeft = getDaysUntilDeadline(internship.deadline);
     const isEndingSoon = daysLeft <= 5;
     const isNew = isNewInternship(internship.postedDate);
+    
+    // Get authenticity label and color based on score
+    const getAuthenticityInfo = (score: number) => {
+      if (score >= 90) return { label: 'Verified', color: 'bg-green-50 text-green-700 border-green-200', icon: CheckCircle2 };
+      if (score >= 70) return { label: 'Likely Safe', color: 'bg-blue-50 text-blue-700 border-blue-200', icon: ShieldCheck };
+      if (score >= 40) return { label: 'Risky', color: 'bg-yellow-50 text-yellow-700 border-yellow-200', icon: AlertCircle };
+      return { label: 'Suspicious', color: 'bg-red-50 text-red-700 border-red-200', icon: AlertCircle };
+    };
+    
+    const authenticityInfo = getAuthenticityInfo(internship.authenticityScore);
+    const AuthIcon = authenticityInfo.icon;
 
     return (
       <div className="bg-white rounded-2xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-indigo-200 hover:-translate-y-1">
@@ -1210,6 +1915,23 @@ export default function App() {
                   {internship.title}
                 </h3>
                 <p className="text-sm text-gray-600 font-medium">{internship.company}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Authenticity Section - Separated */}
+          <div className="bg-gradient-to-r from-gray-50 to-indigo-50 rounded-xl p-3 mb-4 border border-gray-200">
+            <div className="flex items-center justify-between text-xs">
+              <div>
+                <p className="text-gray-600 mb-1">Authenticity Score:</p>
+                <p className="font-bold text-indigo-600 text-sm">{internship.authenticityScore}%</p>
+              </div>
+              <div className="text-right">
+                <p className="text-gray-600 mb-1">Status:</p>
+                <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border ${authenticityInfo.color}`}>
+                  <AuthIcon className="size-3" />
+                  {authenticityInfo.label}
+                </span>
               </div>
             </div>
           </div>
@@ -1444,16 +2166,16 @@ export default function App() {
                 fill="#8884d8"
                 dataKey="value"
               >
-                {sectorData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
+                {sectorData.map((entry) => (
+                  <Cell key={entry.id} fill={entry.color} />
                 ))}
               </Pie>
               <Tooltip />
             </PieChart>
           </ResponsiveContainer>
           <div className="grid grid-cols-2 gap-2 mt-4">
-            {sectorData.map((sector, idx) => (
-              <div key={idx} className="flex items-center gap-2">
+            {sectorData.map((sector) => (
+              <div key={sector.id} className="flex items-center gap-2">
                 <div className="size-3 rounded-full" style={{ backgroundColor: sector.color }} />
                 <span className="text-xs text-gray-600">{sector.name}</span>
               </div>
@@ -1472,7 +2194,11 @@ export default function App() {
               <XAxis dataKey="name" tick={{ fontSize: 12 }} />
               <YAxis tick={{ fontSize: 12 }} />
               <Tooltip />
-              <Bar dataKey="students" fill="#8B5CF6" radius={[8, 8, 0, 0]} />
+              <Bar dataKey="students" fill="#8B5CF6" radius={[8, 8, 0, 0]}>
+                {countryData.map((entry) => (
+                  <Cell key={entry.id} />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -1490,12 +2216,101 @@ export default function App() {
             <YAxis tick={{ fontSize: 12 }} />
             <Tooltip formatter={(value) => value.toLocaleString()} />
             <Legend />
-            <Bar dataKey="students" fill="#F59E0B" radius={[8, 8, 0, 0]} name="Active Students" />
+            <Bar dataKey="students" fill="#F59E0B" radius={[8, 8, 0, 0]} name="Active Students">
+              {stateData.map((entry) => (
+                <Cell key={entry.id} />
+              ))}
+            </Bar>
           </BarChart>
         </ResponsiveContainer>
       </div>
     </section>
   );
+
+  // Function to download roadmap
+  const handleDownloadRoadmap = useCallback(() => {
+    setIsDownloadingRoadmap(true);
+    setDownloadComplete(false);
+    
+    // Simulate download process
+    setTimeout(() => {
+      // Create a simple text representation of the roadmap
+      const roadmapContent = `
+INTERNAI - PERSONALIZED CAREER ROADMAP
+=====================================
+
+Selected Domains: ${selectedDomains.join(', ')}
+Match Status: ${matchedInternships.length} matches found
+
+SKILLS TO LEARN:
+- Python Programming
+- Machine Learning Basics
+- Data Structures & Algorithms
+- SQL & Databases
+- Git & Version Control
+- Web Development Fundamentals
+
+LEARNING PATH:
+Phase 1 (Weeks 1-4): Foundation Building
+  - Complete Python basics
+  - Learn data structures
+  - Build 2 small projects
+
+Phase 2 (Weeks 5-8): Intermediate Skills
+  - Advanced Python
+  - Introduction to ML
+  - Database fundamentals
+
+Phase 3 (Weeks 9-12): Advanced & Application
+  - Build ML projects
+  - Contribute to open source
+  - Create portfolio website
+
+SUGGESTED PROJECTS:
+- Personal Portfolio Website
+- Data Analysis Dashboard
+- ML Classification Model
+- Full Stack Web App
+
+Generated on: ${new Date().toLocaleDateString()}
+      `;
+      
+      // Create and download the file
+      const blob = new Blob([roadmapContent], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `InternAI_Career_Roadmap_${new Date().getTime()}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      
+      setIsDownloadingRoadmap(false);
+      setDownloadComplete(true);
+      
+      // Reset completion status after 3 seconds
+      setTimeout(() => {
+        setDownloadComplete(false);
+      }, 3000);
+    }, 2000); // 2 second download simulation
+  }, [selectedDomains, matchedInternships]);
+
+  // Get unmatched domains
+  const unmatchedDomains = useMemo(() => {
+    if (selectedDomains.length === 0) return [];
+    
+    const matchedDomainSet = new Set<string>();
+    matchedInternships.forEach(internship => {
+      internship.domains.forEach(domain => {
+        if (selectedDomains.includes(domain)) {
+          matchedDomainSet.add(domain);
+        }
+      });
+    });
+    
+    return selectedDomains.filter(domain => !matchedDomainSet.has(domain));
+  }, [selectedDomains, matchedInternships]);
 
   // Career Roadmap Page
   const CareerRoadmapPage = () => (
@@ -1513,18 +2328,246 @@ export default function App() {
           <div className="inline-flex items-center justify-center size-20 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl mb-6">
             <Route className="size-10 text-white" />
           </div>
-          <h1 className="text-5xl font-bold text-gray-800 mb-4">{t.careerRoadmapTitle}</h1>
-          <p className="text-xl text-gray-700">{t.careerRoadmapDesc}</p>
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">{t.careerRoadmapTitle}</h1>
+          <p className="text-lg md:text-xl text-gray-700 mb-6">{t.careerRoadmapDesc}</p>
+          
+          {/* Download Button */}
+          <button
+            onClick={handleDownloadRoadmap}
+            disabled={isDownloadingRoadmap}
+            className={`inline-flex items-center gap-3 px-6 py-3 rounded-xl font-semibold text-white transition-all shadow-lg hover:shadow-xl ${
+              isDownloadingRoadmap 
+                ? 'bg-gray-400 cursor-not-allowed' 
+                : downloadComplete
+                ? 'bg-green-600 hover:bg-green-700'
+                : 'bg-indigo-600 hover:bg-indigo-700'
+            }`}
+          >
+            {isDownloadingRoadmap ? (
+              <>
+                <div className="size-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                <span>Downloading...</span>
+              </>
+            ) : downloadComplete ? (
+              <>
+                <CheckCircle2 className="size-5" />
+                <span>Downloaded Successfully!</span>
+              </>
+            ) : (
+              <>
+                <Download className="size-5" />
+                <span>Download Roadmap</span>
+              </>
+            )}
+          </button>
         </div>
 
         <div className="space-y-8">
-          {/* Skills to Learn */}
-          <div className="bg-white/95 backdrop-blur-lg rounded-2xl p-8 shadow-xl">
+          {/* Unmatched Domains & Eligibility Reasons */}
+          {unmatchedDomains.length > 0 && (
+            <div className="bg-amber-50 border-2 border-amber-300 rounded-2xl p-6 md:p-8 shadow-xl">
+              <div className="flex items-center gap-3 mb-6">
+                <AlertCircle className="size-8 text-amber-600" />
+                <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Domains Requiring Skill Development</h2>
+              </div>
+              <p className="text-gray-700 mb-6">
+                The following domains from your selection need additional skills before you can qualify for internships:
+              </p>
+              <div className="space-y-4">
+                {unmatchedDomains.map((domain, idx) => {
+                  const reasons = domain.includes('Data Science') || domain.includes('AI')
+                    ? ['Requires Python programming proficiency', 'Need ML/Statistics background', 'Portfolio with 2-3 data projects recommended']
+                    : domain.includes('Web Development') || domain.includes('Software')
+                    ? ['Need HTML/CSS/JavaScript basics', 'Familiarity with React or similar framework', 'At least 1 web project in portfolio']
+                    : domain.includes('Mobile')
+                    ? ['Need React Native or Flutter experience', 'Understanding of mobile UI/UX', 'Published app or demo project required']
+                    : domain.includes('UI/UX')
+                    ? ['Portfolio with 3-5 design projects', 'Figma/Adobe XD proficiency', 'Understanding of design principles']
+                    : domain.includes('Cybersecurity')
+                    ? ['Networking fundamentals required', 'Basic cryptography knowledge', 'Security certifications helpful']
+                    : ['Foundational skills in this domain needed', 'Practical project experience required', 'Relevant coursework or certifications recommended'];
+                  
+                  return (
+                    <div key={idx} className="bg-white rounded-xl p-5 border-2 border-amber-200">
+                      <div className="flex items-start justify-between mb-3">
+                        <h3 className="text-lg font-bold text-gray-900">{domain}</h3>
+                        <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-semibold">
+                          Not Eligible
+                        </span>
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-sm font-semibold text-gray-700">Why you're not eligible:</p>
+                        <ul className="space-y-1.5">
+                          {reasons.map((reason, reasonIdx) => (
+                            <li key={reasonIdx} className="flex items-start gap-2 text-sm text-gray-600">
+                              <X className="size-4 text-red-500 flex-shrink-0 mt-0.5" />
+                              <span>{reason}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div className="mt-4 pt-4 border-t border-amber-200">
+                        <p className="text-sm font-semibold text-indigo-700">
+                          ✓ Follow the roadmap below to bridge these skill gaps!
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Matched Domains Summary */}
+          {matchedInternships.length > 0 && (
+            <div className="bg-green-50 border-2 border-green-300 rounded-2xl p-6 md:p-8 shadow-xl">
+              <div className="flex items-center gap-3 mb-4">
+                <CheckCircle2 className="size-8 text-green-600" />
+                <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Matched Opportunities</h2>
+              </div>
+              <p className="text-gray-700 mb-4">
+                Great news! You have {matchedInternships.length} internship{matchedInternships.length > 1 ? 's' : ''} matching your profile.
+              </p>
+              <button
+                onClick={() => setCurrentPage('matched-internships')}
+                className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition-all font-semibold shadow-md hover:shadow-lg"
+              >
+                <span>View Matched Internships</span>
+                <ArrowRight className="size-5" />
+              </button>
+            </div>
+          )}
+
+          {/* Domain-Specific Learning Roadmaps for Unmatched Domains */}
+          {unmatchedDomains.map((domain, idx) => {
+            const roadmap = domain.includes('Data Science') || domain.includes('AI')
+              ? {
+                  skills: ['Python Programming', 'Statistics & Mathematics', 'Machine Learning', 'Data Visualization', 'SQL & Databases', 'Pandas & NumPy'],
+                  path: [
+                    { phase: 'Month 1', title: 'Python & Math Foundations', tasks: ['Complete Python basics course', 'Learn statistics fundamentals', 'Practice on HackerRank/LeetCode'] },
+                    { phase: 'Month 2', title: 'Data Analysis', tasks: ['Master Pandas library', 'Learn data visualization (Matplotlib, Seaborn)', 'Complete 3 data analysis projects'] },
+                    { phase: 'Month 3', title: 'Machine Learning', tasks: ['Study ML algorithms', 'Work with scikit-learn', 'Build 2 ML projects'] },
+                  ],
+                  projects: [
+                    { title: 'Exploratory Data Analysis Dashboard', desc: 'Analyze real-world dataset with visualizations' },
+                    { title: 'Predictive Model', desc: 'Build model to predict outcomes from data' },
+                  ]
+                }
+              : domain.includes('Web Development') || domain.includes('Software')
+              ? {
+                  skills: ['HTML/CSS', 'JavaScript', 'React.js', 'Node.js', 'Git', 'RESTful APIs'],
+                  path: [
+                    { phase: 'Month 1', title: 'Frontend Basics', tasks: ['Learn HTML, CSS, JavaScript', 'Build 3 static websites', 'Master responsive design'] },
+                    { phase: 'Month 2', title: 'React Development', tasks: ['Complete React course', 'Build interactive web apps', 'Learn state management'] },
+                    { phase: 'Month 3', title: 'Full Stack', tasks: ['Learn Node.js & Express', 'Work with databases', 'Deploy 2 full-stack apps'] },
+                  ],
+                  projects: [
+                    { title: 'Portfolio Website', desc: 'Responsive personal website with React' },
+                    { title: 'E-commerce Site', desc: 'Full-stack application with cart & payments' },
+                  ]
+                }
+              : domain.includes('UI/UX')
+              ? {
+                  skills: ['Figma', 'Adobe XD', 'Design Principles', 'Wireframing', 'Prototyping', 'User Research'],
+                  path: [
+                    { phase: 'Month 1', title: 'Design Fundamentals', tasks: ['Learn design principles', 'Study color theory & typography', 'Complete Figma basics'] },
+                    { phase: 'Month 2', title: 'UX Research', tasks: ['User research methods', 'Create user personas', 'Design wireframes'] },
+                    { phase: 'Month 3', title: 'Portfolio Building', tasks: ['Design 5 complete projects', 'Build case studies', 'Create design portfolio'] },
+                  ],
+                  projects: [
+                    { title: 'Mobile App Design', desc: 'Complete app design with prototypes' },
+                    { title: 'Website Redesign', desc: 'Redesign existing website with UX research' },
+                  ]
+                }
+              : {
+                  skills: ['Domain Fundamentals', 'Practical Tools', 'Industry Knowledge', 'Project Work', 'Communication', 'Problem Solving'],
+                  path: [
+                    { phase: 'Month 1', title: 'Build Foundation', tasks: ['Study core concepts', 'Learn essential tools', 'Network with professionals'] },
+                    { phase: 'Month 2', title: 'Hands-on Practice', tasks: ['Complete online courses', 'Work on practice projects', 'Join communities'] },
+                    { phase: 'Month 3', title: 'Portfolio Development', tasks: ['Build 3-5 projects', 'Document your work', 'Prepare for interviews'] },
+                  ],
+                  projects: [
+                    { title: 'Beginner Project', desc: 'Start with simple, foundational project' },
+                    { title: 'Advanced Project', desc: 'Showcase skills with complex project' },
+                  ]
+                };
+
+            return (
+              <div key={idx} className="bg-gradient-to-br from-purple-50 to-blue-50 border-2 border-purple-300 rounded-2xl p-6 md:p-8 shadow-xl">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center gap-3">
+                    <Route className="size-8 text-purple-600" />
+                    <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Roadmap for {domain}</h2>
+                  </div>
+                  <span className="px-4 py-2 bg-purple-600 text-white rounded-full text-sm font-semibold">
+                    Skill Gap Bridge
+                  </span>
+                </div>
+
+                {/* Skills */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-bold text-gray-900 mb-3">Skills to Acquire:</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {roadmap.skills.map((skill, skillIdx) => (
+                      <div key={skillIdx} className="flex items-center gap-2 p-3 bg-white rounded-lg border border-purple-200">
+                        <CheckSquare className="size-4 text-purple-600 flex-shrink-0" />
+                        <span className="text-sm font-medium text-gray-900">{skill}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Learning Path */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-bold text-gray-900 mb-3">Learning Path:</h3>
+                  <div className="space-y-3">
+                    {roadmap.path.map((phase, phaseIdx) => (
+                      <div key={phaseIdx} className="flex gap-3 p-4 bg-white rounded-lg border border-purple-200">
+                        <div className="flex-shrink-0 size-10 bg-purple-600 rounded-full flex items-center justify-center text-white font-bold">
+                          {phaseIdx + 1}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-sm font-semibold text-purple-600">{phase.phase}</span>
+                            <span className="text-lg font-bold text-gray-900">{phase.title}</span>
+                          </div>
+                          <ul className="space-y-1">
+                            {phase.tasks.map((task, taskIdx) => (
+                              <li key={taskIdx} className="flex items-center gap-2 text-sm text-gray-700">
+                                <div className="size-1.5 bg-purple-400 rounded-full" />
+                                <span>{task}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Projects */}
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-3">Recommended Projects:</h3>
+                  <div className="grid md:grid-cols-2 gap-3">
+                    {roadmap.projects.map((project, projectIdx) => (
+                      <div key={projectIdx} className="p-4 bg-white rounded-lg border border-purple-200">
+                        <h4 className="text-base font-bold text-gray-900 mb-2">{project.title}</h4>
+                        <p className="text-sm text-gray-700">{project.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+
+          {/* General Skills to Learn */}
+          <div className="bg-white/95 backdrop-blur-lg rounded-2xl p-6 md:p-8 shadow-xl">
             <div className="flex items-center gap-3 mb-6">
               <BookMarked className="size-8 text-blue-600" />
-              <h2 className="text-3xl font-bold text-gray-900">{t.skillsToLearn}</h2>
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Essential Skills for All Domains</h2>
             </div>
-            <div className="grid md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {['Python Programming', 'Machine Learning Basics', 'Data Structures & Algorithms', 'SQL & Databases', 'Git & Version Control', 'Web Development Fundamentals'].map((skill, idx) => (
                 <div key={idx} className="flex items-center gap-3 p-4 bg-blue-50 rounded-xl border border-blue-200">
                   <CheckSquare className="size-5 text-blue-600 flex-shrink-0" />
@@ -1619,36 +2662,136 @@ export default function App() {
   );
 
   // Matched Internships Page
-  const MatchedInternshipsPage = () => (
-    <div className="min-h-screen py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <button 
-          onClick={() => setCurrentPage('home')}
-          className="inline-flex items-center gap-2 text-gray-700 hover:text-gray-900 mb-6 transition-colors group bg-white/80 backdrop-blur-sm px-4 py-2 rounded-lg shadow-sm"
-        >
-          <ArrowRight className="size-5 rotate-180 group-hover:-translate-x-1 transition-transform" />
-          <span className="font-medium">{t.backToHome}</span>
-        </button>
+  const MatchedInternshipsPage = () => {
+    // Calculate match percentages by domain
+    const domainMatchData = useMemo(() => {
+      const domainCounts: Record<string, { matched: number; total: number }> = {};
+      
+      selectedDomains.forEach(domain => {
+        domainCounts[domain] = { matched: 0, total: internships.length };
+      });
+      
+      matchedInternships.forEach(internship => {
+        internship.domains.forEach(domain => {
+          if (domainCounts[domain]) {
+            domainCounts[domain].matched += 1;
+          }
+        });
+      });
+      
+      return Object.entries(domainCounts).map(([domain, counts], index) => ({
+        id: `domain-match-${index}-${domain}`,
+        domain: domain.length > 20 ? domain.substring(0, 20) + '...' : domain,
+        fullDomain: domain,
+        percentage: Math.round((counts.matched / Math.max(counts.total, 1)) * 100),
+        matched: counts.matched,
+      })).sort((a, b) => b.percentage - a.percentage);
+    }, [matchedInternships, selectedDomains, internships]);
 
-        <div className="mb-12">
-          <h1 className="text-5xl font-bold text-gray-800 mb-4">{t.matchedInternships}</h1>
-          <p className="text-xl text-gray-700">
-            Found {matchedInternships.length} opportunities based on your profile
-          </p>
-          <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-green-100 backdrop-blur-md rounded-full border border-green-300 shadow-sm">
-            <CheckCircle2 className="size-4 text-green-600" />
-            <span className="text-sm text-green-700 font-medium">{t.matchScore}: 85-95%</span>
+    return (
+      <div className="min-h-screen py-8 md:py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <button 
+            onClick={() => setCurrentPage('home')}
+            className="inline-flex items-center gap-2 text-gray-700 hover:text-gray-900 mb-6 transition-colors group bg-white/80 backdrop-blur-sm px-4 py-2 rounded-lg shadow-sm"
+          >
+            <ArrowRight className="size-5 rotate-180 group-hover:-translate-x-1 transition-transform" />
+            <span className="font-medium">{t.backToHome}</span>
+          </button>
+
+          <div className="mb-8 md:mb-12">
+            <h1 className="text-3xl md:text-5xl font-bold text-gray-800 mb-4">{t.matchedInternships}</h1>
+            <p className="text-lg md:text-xl text-gray-700">
+              Found {matchedInternships.length} opportunities based on your profile
+            </p>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 backdrop-blur-md rounded-full border border-green-300 shadow-sm">
+                <CheckCircle2 className="size-4 text-green-600" />
+                <span className="text-sm text-green-700 font-medium">{t.matchScore}: 85-95%</span>
+              </div>
+              
+              {/* Chart Toggle Button */}
+              <button
+                onClick={() => setShowMatchChart(!showMatchChart)}
+                className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border-2 shadow-sm transition-all ${
+                  showMatchChart 
+                    ? 'bg-indigo-600 text-white border-indigo-600' 
+                    : 'bg-white text-indigo-600 border-indigo-300 hover:border-indigo-600'
+                }`}
+              >
+                <BarChart3 className="size-5" />
+                <span className="text-sm font-medium">
+                  {showMatchChart ? 'Hide Chart' : 'Show Match Analytics'}
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* Match Analytics Chart */}
+          {showMatchChart && (
+            <div className="bg-white/95 backdrop-blur-lg rounded-2xl p-6 md:p-8 shadow-xl border border-gray-200 mb-8 animate-in">
+              <div className="flex items-center gap-3 mb-6">
+                <BarChart3 className="size-8 text-indigo-600" />
+                <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Domain Match Analytics</h2>
+              </div>
+              <p className="text-gray-600 mb-6">
+                Percentage of available internships matching your selected domains
+              </p>
+              <ResponsiveContainer width="100%" height={400}>
+                <BarChart data={domainMatchData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis 
+                    dataKey="domain" 
+                    tick={{ fontSize: 12, angle: -45, textAnchor: 'end' }} 
+                    height={120}
+                  />
+                  <YAxis 
+                    tick={{ fontSize: 12 }} 
+                    label={{ value: 'Match Percentage (%)', angle: -90, position: 'insideLeft' }}
+                  />
+                  <Tooltip 
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        const data = payload[0].payload;
+                        return (
+                          <div className="bg-white p-4 rounded-lg shadow-lg border-2 border-indigo-200">
+                            <p className="font-bold text-gray-900 mb-2">{data.fullDomain}</p>
+                            <p className="text-indigo-600 font-semibold">{data.percentage}% Match</p>
+                            <p className="text-gray-600 text-sm">{data.matched} matched internships</p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Bar dataKey="percentage" fill="#4F46E5" radius={[8, 8, 0, 0]}>
+                    {domainMatchData.map((entry) => (
+                      <Cell key={entry.id} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+              <div className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-4">
+                {domainMatchData.map((item) => (
+                  <div key={item.id} className="bg-indigo-50 rounded-lg p-3 border border-indigo-200">
+                    <p className="text-xs text-gray-600 mb-1">{item.fullDomain}</p>
+                    <p className="text-2xl font-bold text-indigo-600">{item.percentage}%</p>
+                    <p className="text-xs text-gray-500">{item.matched} matches</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            {matchedInternships.map((internship) => (
+              <InternshipCard key={internship.id} internship={internship} />
+            ))}
           </div>
         </div>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {matchedInternships.map((internship) => (
-            <InternshipCard key={internship.id} internship={internship} />
-          ))}
-        </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   // Government & MNC Internships Pages (keeping previous implementations)
   const GovInternshipsPage = () => {
@@ -1783,820 +2926,7 @@ export default function App() {
     );
   };
 
-  // Login/Signup Pages (keeping from previous, will add domain selector to signup)
-  const StudentLoginPage = () => {
-    const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>, nextFieldId?: string) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        if (nextFieldId) {
-          const nextField = document.getElementById(nextFieldId);
-          if (nextField) {
-            nextField.focus();
-          }
-        }
-      }
-    }, []);
 
-    return (
-      <div className="min-h-screen flex items-center justify-center px-4 py-20">
-        <div className="max-w-md w-full bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl p-10">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center size-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl mb-4">
-              <GraduationCap className="size-8 text-white" />
-            </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">{t.studentLogin}</h2>
-            <p className="text-gray-600">Welcome back, student!</p>
-          </div>
-
-          <form className="space-y-6">
-            <div>
-              <label className="block text-gray-700 mb-2 font-medium text-sm">{t.email}</label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
-                <input 
-                  id="login-email"
-                  type="email"
-                  value={studentLoginEmail}
-                  onChange={(e) => setStudentLoginEmail(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all"
-                  placeholder="student@example.com"
-                  autoComplete="email"
-                  spellCheck="false"
-                  onKeyDown={(e) => handleKeyDown(e, 'login-password')}
-                  aria-label="Email address"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-gray-700 mb-2 font-medium text-sm">{t.password}</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
-                <input 
-                  id="login-password"
-                  type={showPassword ? "text" : "password"}
-                  value={studentLoginPassword}
-                  onChange={(e) => setStudentLoginPassword(e.target.value)}
-                  className="w-full pl-11 pr-11 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all"
-                  placeholder="••••••••"
-                  autoComplete="current-password"
-                  spellCheck="false"
-                  aria-label="Password"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      const form = e.currentTarget.form;
-                      if (form) {
-                        form.requestSubmit();
-                      }
-                    }
-                  }}
-                />
-                <button 
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
-                </button>
-              </div>
-            </div>
-
-            <div className="text-right">
-              <button type="button" className="text-indigo-600 hover:text-indigo-700 text-sm font-medium">
-                {t.forgotPassword}
-              </button>
-            </div>
-
-            <button 
-              type="submit"
-              className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-lg transition-all font-medium"
-            >
-              {t.loginButton}
-            </button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-gray-600 text-sm">
-              {t.noAccount}{' '}
-              <button 
-                onClick={() => setCurrentPage('student-signup')}
-                className="text-indigo-600 hover:text-indigo-700 font-medium"
-              >
-                {t.signupHere}
-              </button>
-            </p>
-          </div>
-
-          <div className="mt-6 text-center">
-            <p className="text-gray-500 text-xs mb-3">{t.orLoginAs}</p>
-            <button 
-              onClick={() => setCurrentPage('org-login')}
-              className="flex items-center justify-center gap-2 w-full py-2 border-2 border-gray-200 rounded-xl hover:bg-gray-50 text-gray-700 transition-all"
-            >
-              <Building2 className="size-5" />
-              <span className="font-medium">{t.organization}</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const StudentSignupPage = () => {
-    const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>, nextFieldId?: string) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        if (nextFieldId) {
-          const nextField = document.getElementById(nextFieldId);
-          if (nextField) {
-            nextField.focus();
-          }
-        }
-      }
-    }, []);
-
-    return (
-      <div className="min-h-screen flex items-center justify-center px-4 py-20">
-        <div className="max-w-3xl w-full bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl p-10">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center size-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl mb-4">
-              <GraduationCap className="size-8 text-white" />
-            </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">{t.studentSignup}</h2>
-            <p className="text-gray-600">Start your career journey today!</p>
-          </div>
-
-          <form className="space-y-6">
-            {ResumeUploadJSX}
-            {DomainSelectorJSX}
-
-            <div>
-              <label className="block text-gray-700 mb-2 font-medium text-sm">{t.fullName}</label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
-                <input 
-                  id="signup-fullname"
-                  type="text"
-                  value={studentSignupFullName}
-                  onChange={(e) => setStudentSignupFullName(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all"
-                  placeholder="Rahul Kumar"
-                  autoComplete="name"
-                  onKeyDown={(e) => handleKeyDown(e, 'signup-email')}
-                  aria-label="Full name"
-                />
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-gray-700 mb-2 font-medium text-sm">{t.email}</label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
-                  <input 
-                    id="signup-email"
-                    type="email"
-                    value={studentSignupEmail}
-                    onChange={(e) => setStudentSignupEmail(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all"
-                    placeholder="student@example.com"
-                    autoComplete="email"
-                    spellCheck="false"
-                    onKeyDown={(e) => handleKeyDown(e, 'signup-phone')}
-                    aria-label="Email address"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-gray-700 mb-2 font-medium text-sm">{t.phone}</label>
-                <div className="relative">
-                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
-                  <input 
-                    id="signup-phone"
-                    value={studentSignupPhone}
-                    onChange={(e) => setStudentSignupPhone(e.target.value)}
-                    type="tel"
-                    className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all"
-                    placeholder="+91 98765 43210"
-                    autoComplete="tel"
-                    onKeyDown={(e) => handleKeyDown(e, 'signup-college')}
-                    aria-label="Phone number"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-gray-700 mb-2 font-medium text-sm">{t.college}</label>
-                <div className="relative">
-                  <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400 pointer-events-none z-10" />
-                  <select 
-                    id="signup-college"
-                    value={studentSignupCollege}
-                    onChange={(e) => {
-                      setStudentSignupCollege(e.target.value);
-                      if (e.target.value !== 'Others') {
-                        setStudentSignupCollegeOther('');
-                      }
-                    }}
-                    className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all appearance-none bg-white cursor-pointer"
-                    onKeyDown={(e) => handleKeyDown(e, studentSignupCollege === 'Others' ? 'signup-college-other' : 'signup-city')}
-                    aria-label="College or university"
-                  >
-                    <option value="">Select College/University</option>
-                    <option value="IIT Bombay">IIT Bombay</option>
-                    <option value="IIT Delhi">IIT Delhi</option>
-                    <option value="IIT Madras">IIT Madras</option>
-                    <option value="IIT Kanpur">IIT Kanpur</option>
-                    <option value="IIT Kharagpur">IIT Kharagpur</option>
-                    <option value="IIT Roorkee">IIT Roorkee</option>
-                    <option value="IIT Guwahati">IIT Guwahati</option>
-                    <option value="IIT Hyderabad">IIT Hyderabad</option>
-                    <option value="NIT Trichy">NIT Trichy</option>
-                    <option value="NIT Warangal">NIT Warangal</option>
-                    <option value="NIT Surathkal">NIT Surathkal</option>
-                    <option value="NIT Calicut">NIT Calicut</option>
-                    <option value="IIIT Hyderabad">IIIT Hyderabad</option>
-                    <option value="IIIT Bangalore">IIIT Bangalore</option>
-                    <option value="IIIT Delhi">IIIT Delhi</option>
-                    <option value="Delhi University (DU)">Delhi University (DU)</option>
-                    <option value="NSUT">NSUT</option>
-                    <option value="DTU">DTU</option>
-                    <option value="JNU">JNU</option>
-                    <option value="BITS Pilani">BITS Pilani</option>
-                    <option value="VIT">VIT</option>
-                    <option value="SRM University">SRM University</option>
-                    <option value="Manipal University">Manipal University</option>
-                    <option value="Amity University">Amity University</option>
-                    <option value="Symbiosis">Symbiosis</option>
-                    <option value="Christ University">Christ University</option>
-                    <option value="University of Toronto">University of Toronto</option>
-                    <option value="University of British Columbia">University of British Columbia</option>
-                    <option value="National University of Singapore (NUS)">National University of Singapore (NUS)</option>
-                    <option value="Nanyang Technological University (NTU)">Nanyang Technological University (NTU)</option>
-                    <option value="University of Melbourne">University of Melbourne</option>
-                    <option value="University of Sydney">University of Sydney</option>
-                    <option value="University of Oxford">University of Oxford</option>
-                    <option value="University of Cambridge">University of Cambridge</option>
-                    <option value="Harvard University">Harvard University</option>
-                    <option value="Stanford University">Stanford University</option>
-                    <option value="MIT">MIT</option>
-                    <option value="Others">Others</option>
-                  </select>
-                </div>
-                {studentSignupCollege === 'Others' && (
-                  <input 
-                    id="signup-college-other"
-                    type="text"
-                    value={studentSignupCollegeOther}
-                    onChange={(e) => setStudentSignupCollegeOther(e.target.value)}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all mt-2"
-                    placeholder="Enter your college/university name"
-                    onKeyDown={(e) => handleKeyDown(e, 'signup-city')}
-                    aria-label="Other college or university"
-                  />
-                )}
-              </div>
-
-              <div>
-                <label className="block text-gray-700 mb-2 font-medium text-sm">{t.city}</label>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400 pointer-events-none z-10" />
-                  <select 
-                    id="signup-city"
-                    value={studentSignupCity}
-                    onChange={(e) => {
-                      setStudentSignupCity(e.target.value);
-                      if (e.target.value !== 'Others') {
-                        setStudentSignupCityOther('');
-                      }
-                    }}
-                    className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all appearance-none bg-white cursor-pointer"
-                    onKeyDown={(e) => handleKeyDown(e, studentSignupCity === 'Others' ? 'signup-city-other' : 'signup-degree')}
-                    aria-label="City"
-                  >
-                    <option value="">Select City</option>
-                    <option value="Mumbai">Mumbai</option>
-                    <option value="Delhi">Delhi</option>
-                    <option value="Bangalore">Bangalore</option>
-                    <option value="Hyderabad">Hyderabad</option>
-                    <option value="Chennai">Chennai</option>
-                    <option value="Kolkata">Kolkata</option>
-                    <option value="Pune">Pune</option>
-                    <option value="Ahmedabad">Ahmedabad</option>
-                    <option value="Toronto">Toronto</option>
-                    <option value="Vancouver">Vancouver</option>
-                    <option value="Singapore">Singapore</option>
-                    <option value="Dubai">Dubai</option>
-                    <option value="Sydney">Sydney</option>
-                    <option value="Melbourne">Melbourne</option>
-                    <option value="London">London</option>
-                    <option value="Oxford">Oxford</option>
-                    <option value="Cambridge">Cambridge</option>
-                    <option value="Boston">Boston</option>
-                    <option value="San Francisco">San Francisco</option>
-                    <option value="Amsterdam">Amsterdam</option>
-                    <option value="Others">Others</option>
-                  </select>
-                </div>
-                {studentSignupCity === 'Others' && (
-                  <input 
-                    id="signup-city-other"
-                    type="text"
-                    value={studentSignupCityOther}
-                    onChange={(e) => setStudentSignupCityOther(e.target.value)}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all mt-2"
-                    placeholder="Enter your city name"
-                    onKeyDown={(e) => handleKeyDown(e, 'signup-degree')}
-                    aria-label="Other city"
-                  />
-                )}
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-gray-700 mb-2 font-medium text-sm">{t.degree}</label>
-                <select 
-                  id="signup-degree"
-                  value={studentSignupDegree}
-                  onChange={(e) => {
-                    setStudentSignupDegree(e.target.value);
-                    if (e.target.value !== 'Others') {
-                      setStudentSignupDegreeOther('');
-                    }
-                  }}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all appearance-none bg-white cursor-pointer"
-                  onKeyDown={(e) => handleKeyDown(e, studentSignupDegree === 'Others' ? 'signup-degree-other' : 'signup-year')}
-                  aria-label="Degree"
-                >
-                  <option value="">Select Degree</option>
-                  <option value="B.Tech / B.E.">B.Tech / B.E.</option>
-                  <option value="M.Tech / M.E.">M.Tech / M.E.</option>
-                  <option value="B.Sc">B.Sc</option>
-                  <option value="M.Sc">M.Sc</option>
-                  <option value="BCA">BCA</option>
-                  <option value="MCA">MCA</option>
-                  <option value="BBA">BBA</option>
-                  <option value="MBA">MBA</option>
-                  <option value="BA">BA</option>
-                  <option value="MA">MA</option>
-                  <option value="B.Com">B.Com</option>
-                  <option value="M.Com">M.Com</option>
-                  <option value="LLB">LLB</option>
-                  <option value="LLM">LLM</option>
-                  <option value="MBBS">MBBS</option>
-                  <option value="Others">Others</option>
-                </select>
-                {studentSignupDegree === 'Others' && (
-                  <input 
-                    id="signup-degree-other"
-                    type="text"
-                    value={studentSignupDegreeOther}
-                    onChange={(e) => setStudentSignupDegreeOther(e.target.value)}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all mt-2"
-                    placeholder="Enter your degree"
-                    onKeyDown={(e) => handleKeyDown(e, 'signup-year')}
-                    aria-label="Other degree"
-                  />
-                )}
-              </div>
-
-              <div>
-                <label className="block text-gray-700 mb-2 font-medium text-sm">{t.yearOfStudy}</label>
-                <select 
-                  id="signup-year"
-                  value={studentSignupYear}
-                  onChange={(e) => setStudentSignupYear(e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all"
-                  onKeyDown={(e) => handleKeyDown(e, 'signup-password')}
-                  aria-label="Year of study"
-                >
-                  <option>1st Year</option>
-                  <option>2nd Year</option>
-                  <option>3rd Year</option>
-                  <option>4th Year</option>
-                  <option>Final Year</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-gray-700 mb-2 font-medium text-sm">{t.password}</label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
-                  <input 
-                    id="signup-password"
-                    value={studentSignupPassword}
-                    onChange={(e) => setStudentSignupPassword(e.target.value)}
-                    type={showPassword ? "text" : "password"}
-                    className="w-full pl-11 pr-11 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all"
-                    placeholder="••••••••"
-                    autoComplete="new-password"
-                    spellCheck="false"
-                    onKeyDown={(e) => handleKeyDown(e, 'signup-confirmpassword')}
-                    aria-label="Password"
-                  />
-                  <button 
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
-                    {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
-                  </button>
-                </div>
-            </div>
-
-              <div>
-                <label className="block text-gray-700 mb-2 font-medium text-sm">{t.confirmPassword}</label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
-                  <input 
-                    id="signup-confirmpassword"
-                    type="password"
-                    value={studentSignupConfirmPassword}
-                    onChange={(e) => setStudentSignupConfirmPassword(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all"
-                    placeholder="••••••••"
-                    autoComplete="new-password"
-                    spellCheck="false"
-                    aria-label="Confirm password"
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        e.preventDefault();
-                        const form = e.currentTarget.form;
-                        if (form) {
-                          form.requestSubmit();
-                        }
-                      }
-                    }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Signup Progress Indicator */}
-            <div className="bg-gradient-to-r from-indigo-50 to-blue-50 border-2 border-indigo-200 rounded-xl p-4">
-              <p className="text-sm font-semibold text-gray-800 mb-3">Signup Progress</p>
-              <div className="space-y-2">
-                <div className={`flex items-center gap-2 text-sm ${hasResumeUploaded ? 'text-green-700' : 'text-gray-500'}`}>
-                  {hasResumeUploaded ? (
-                    <CheckCircle2 className="size-4 text-green-600" />
-                  ) : (
-                    <div className="size-4 border-2 border-gray-400 rounded-full" />
-                  )}
-                  <span className={hasResumeUploaded ? 'font-medium' : ''}>Resume Uploaded</span>
-                </div>
-                <div className={`flex items-center gap-2 text-sm ${selectedDomains.length > 0 ? 'text-green-700' : 'text-gray-500'}`}>
-                  {selectedDomains.length > 0 ? (
-                    <CheckCircle2 className="size-4 text-green-600" />
-                  ) : (
-                    <div className="size-4 border-2 border-gray-400 rounded-full" />
-                  )}
-                  <span className={selectedDomains.length > 0 ? 'font-medium' : ''}>
-                    Domains Selected {selectedDomains.length > 0 && `(${selectedDomains.length})`}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {!hasResumeUploaded && (
-              <div className="bg-amber-50 border-2 border-amber-200 rounded-xl p-4 flex items-start gap-3">
-                <AlertCircle className="size-5 text-amber-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-amber-800 font-medium text-sm">Resume Required</p>
-                  <p className="text-amber-700 text-xs mt-1">Please upload your resume to continue with signup</p>
-                </div>
-              </div>
-            )}
-
-            {hasResumeUploaded && selectedDomains.length === 0 && (
-              <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 flex items-start gap-3">
-                <AlertCircle className="size-5 text-blue-600 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-blue-800 font-medium text-sm">Select Your Domains</p>
-                  <p className="text-blue-700 text-xs mt-1">Choose at least one domain of interest above</p>
-                </div>
-              </div>
-            )}
-
-            <button 
-              type="submit"
-              onClick={(e) => {
-                e.preventDefault();
-                if (!hasResumeUploaded) {
-                  alert('Please upload your resume to continue');
-                  return;
-                }
-                if (selectedDomains.length === 0) {
-                  alert('Please select at least one domain of interest');
-                  return;
-                }
-                if (matchedInternships.length > 0) {
-                  setCurrentPage('matched-internships');
-                } else if (hasResumeUploaded && selectedDomains.length > 0) {
-                  setCurrentPage('career-roadmap');
-                }
-              }}
-              className={`w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:shadow-lg transition-all font-medium ${
-                !hasResumeUploaded || selectedDomains.length === 0 
-                  ? 'opacity-50 cursor-not-allowed' 
-                  : 'hover:from-blue-700 hover:to-indigo-700'
-              }`}
-            >
-              {t.signupButton}
-            </button>
-
-            {hasResumeUploaded && selectedDomains.length > 0 && (
-              <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
-                <p className="text-sm text-blue-800 font-medium mb-2">
-                  {matchedInternships.length > 0 
-                    ? `✅ ${matchedInternships.length} internships match your profile!`
-                    : '⚠️ No exact matches found, but we have a career roadmap for you'}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setCurrentPage(matchedInternships.length > 0 ? 'matched-internships' : 'career-roadmap')}
-                  className="text-sm text-blue-600 hover:text-blue-700 font-semibold underline"
-                >
-                  {matchedInternships.length > 0 ? t.viewMatches : t.viewCareerRoadmap}
-                </button>
-              </div>
-            )}
-          </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-gray-600 text-sm">
-              {t.alreadyAccount}{' '}
-              <button 
-                onClick={() => setCurrentPage('student-login')}
-                className="text-indigo-600 hover:text-indigo-700 font-medium"
-              >
-                {t.loginHere}
-              </button>
-            </p>
-          </div>
-
-          <div className="mt-4 text-center">
-            <button 
-              onClick={() => setCurrentPage('home')}
-              className="px-6 py-2.5 bg-white/80 backdrop-blur-md text-gray-800 rounded-full border border-gray-200 shadow-sm hover:bg-white hover:shadow-md transition-all font-medium flex items-center gap-2 mx-auto"
-            >
-              <Home className="size-5" />
-              <span>{t.backToHome}</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // Org Login/Signup pages (keeping simplified versions)
-  const OrganizationLoginPage = () => {
-    const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>, nextFieldId?: string) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        if (nextFieldId) {
-          const nextField = document.getElementById(nextFieldId);
-          if (nextField) {
-            nextField.focus();
-          }
-        }
-      }
-    }, []);
-
-    return (
-      <div className="min-h-screen flex items-center justify-center px-4 py-20">
-        <div className="max-w-md w-full bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl p-10">
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center size-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl mb-4">
-              <Building2 className="size-8 text-white" />
-            </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">{t.orgLogin}</h2>
-            <p className="text-gray-600">Find the perfect talent!</p>
-          </div>
-
-          <form className="space-y-6">
-            <div>
-              <label className="block text-gray-700 mb-2 font-medium text-sm">{t.email}</label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
-                <input 
-                  id="org-login-email"
-                  type="email"
-                  value={orgLoginEmail}
-                  onChange={(e) => setOrgLoginEmail(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-100 focus:outline-none transition-all"
-                  placeholder="hr@company.com"
-                  autoComplete="email"
-                  spellCheck="false"
-                  onKeyDown={(e) => handleKeyDown(e, 'org-login-password')}
-                  aria-label="Email address"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-gray-700 mb-2 font-medium text-sm">{t.password}</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
-                <input 
-                  id="org-login-password"
-                  type={showPassword ? "text" : "password"}
-                  value={orgLoginPassword}
-                  onChange={(e) => setOrgLoginPassword(e.target.value)}
-                  className="w-full pl-11 pr-11 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-100 focus:outline-none transition-all"
-                  autoComplete="current-password"
-                  spellCheck="false"
-                  aria-label="Password"
-                  placeholder="••••••••"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      e.preventDefault();
-                      const form = e.currentTarget.form;
-                      if (form) {
-                        form.requestSubmit();
-                      }
-                    }
-                  }}
-              />
-              <button 
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
-                {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
-              </button>
-            </div>
-          </div>
-
-            <button 
-              type="submit"
-              className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:shadow-lg transition-all font-medium"
-            >
-              {t.loginButton}
-            </button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-gray-600 text-sm">
-              {t.noAccount}{' '}
-              <button 
-                onClick={() => setCurrentPage('org-signup')}
-                className="text-purple-600 hover:text-purple-700 font-medium"
-              >
-                {t.signupHere}
-              </button>
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const OrganizationSignupPage = () => (
-    <div className="min-h-screen flex items-center justify-center px-4 py-20">
-      <div className="max-w-2xl w-full bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl p-10">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center size-16 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl mb-4">
-            <Building2 className="size-8 text-white" />
-          </div>
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">{t.orgSignup}</h2>
-          <p className="text-gray-600">Hire the best interns!</p>
-        </div>
-
-        <form className="space-y-6">
-          <div>
-            <label className="block text-gray-700 mb-2 font-medium text-sm">{t.orgName}</label>
-            <div className="relative">
-              <Building className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
-              <input 
-                type="text"
-                value={orgSignupName}
-                onChange={(e) => setOrgSignupName(e.target.value)}
-                className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-100 focus:outline-none transition-all"
-                placeholder="Tech Corp India"
-                autoComplete="organization"
-                aria-label="Organization name"
-              />
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-gray-700 mb-2 font-medium text-sm">{t.email}</label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
-                <input 
-                  type="email"
-                  value={orgSignupEmail}
-                  onChange={(e) => setOrgSignupEmail(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-100 focus:outline-none transition-all"
-                  placeholder="hr@company.com"
-                  autoComplete="email"
-                  spellCheck="false"
-                  aria-label="Email address"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-gray-700 mb-2 font-medium text-sm">{t.phone}</label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
-                <input 
-                  type="tel"
-                  value={orgSignupPhone}
-                  onChange={(e) => setOrgSignupPhone(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-100 focus:outline-none transition-all"
-                  placeholder="+91 98765 43210"
-                  autoComplete="tel"
-                  aria-label="Phone number"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-gray-700 mb-2 font-medium text-sm">{t.password}</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
-                <input 
-                  type={showPassword ? "text" : "password"}
-                  value={orgSignupPassword}
-                  onChange={(e) => setOrgSignupPassword(e.target.value)}
-                  className="w-full pl-11 pr-11 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-100 focus:outline-none transition-all"
-                  placeholder="••••••••"
-                  autoComplete="new-password"
-                  spellCheck="false"
-                  aria-label="Password"
-                />
-                <button 
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  aria-label="Toggle password visibility"
-                >
-                  {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-gray-700 mb-2 font-medium text-sm">{t.confirmPassword}</label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-5 text-gray-400" />
-                <input 
-                  type="password"
-                  value={orgSignupConfirmPassword}
-                  onChange={(e) => setOrgSignupConfirmPassword(e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-100 focus:outline-none transition-all"
-                  placeholder="••••••••"
-                  autoComplete="new-password"
-                  spellCheck="false"
-                  aria-label="Confirm password"
-                />
-              </div>
-            </div>
-          </div>
-
-          <button 
-            type="submit"
-            className="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl hover:shadow-lg transition-all font-medium"
-          >
-            {t.signupButton}
-          </button>
-        </form>
-
-        <div className="mt-6 text-center">
-          <p className="text-gray-600 text-sm">
-            {t.alreadyAccount}{' '}
-            <button 
-              onClick={() => setCurrentPage('org-login')}
-              className="text-purple-600 hover:text-purple-700 font-medium"
-            >
-              {t.loginHere}
-            </button>
-          </p>
-        </div>
-
-        <div className="mt-4 text-center">
-          <button 
-            onClick={() => setCurrentPage('home')}
-            className="px-6 py-2.5 bg-white/80 backdrop-blur-md text-gray-800 rounded-full border border-gray-200 shadow-sm hover:bg-white hover:shadow-md transition-all font-medium flex items-center gap-2 mx-auto"
-          >
-            <Home className="size-5" />
-            <span>{t.backToHome}</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  );
 
   // Home Page
   const HomePage = () => (
@@ -2611,11 +2941,11 @@ export default function App() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-32">
           <div className="text-center space-y-8">
             <div className="flex items-center justify-center gap-4 animate-fade-in">
-              <div className="relative size-24">
+              <div className="relative size-24 rounded-xl overflow-hidden">
                 <img 
                   src={newLogo} 
                   alt="InternAI Logo" 
-                  className="size-full object-contain animate-pulse"
+                  className="size-full object-cover aspect-square animate-pulse"
                 />
               </div>
               <h1 className="text-6xl md:text-7xl font-extrabold bg-gradient-to-r from-blue-400 via-purple-400 to-indigo-400 bg-clip-text text-transparent">
@@ -2630,13 +2960,19 @@ export default function App() {
             <p className="text-xl text-gray-700 max-w-4xl mx-auto leading-relaxed drop-shadow">
               {t.subtitle}
             </p>
-            
-            <div className="max-w-5xl mx-auto mt-8 rounded-2xl overflow-hidden shadow-2xl">
-              <ImageWithFallback 
-                src={heroImage}
-                alt="Students working"
-                className="w-full h-80 object-cover"
-              />
+
+            <div className="max-w-5xl mx-auto mt-8 relative">
+              <div className="relative overflow-hidden rounded-2xl">
+                <ImageWithFallback
+                  src={heroImage}
+                  alt="Students working"
+                  className="w-full h-80 object-cover"
+                />
+                {/* Gradient mask overlay for soft edge blending */}
+                <div className="absolute inset-0 pointer-events-none" style={{
+                  background: 'linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 15%, rgba(255,255,255,0) 85%, rgba(255,255,255,0.3) 100%), linear-gradient(to right, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 10%, rgba(255,255,255,0) 90%, rgba(255,255,255,0.2) 100%)'
+                }}></div>
+              </div>
             </div>
             
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center pt-8">
@@ -2668,6 +3004,29 @@ export default function App() {
       </header>
 
       <ResumeMatchSection />
+
+      {/* Student Dashboard Link Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-3xl shadow-2xl p-8 text-center hover:shadow-3xl transition-all duration-300">
+          <div className="flex flex-col items-center gap-4">
+            <div className="size-16 bg-white/20 backdrop-blur-lg rounded-2xl flex items-center justify-center">
+              <GraduationCap className="size-10 text-white" />
+            </div>
+            <div>
+              <h2 className="text-3xl font-bold text-white mb-2">Access Your Student Dashboard</h2>
+              <p className="text-white/90 text-lg mb-6">View your personalized internship matches, career roadmap, and skill assessments</p>
+            </div>
+            <button
+              onClick={() => setCurrentPage('student-dashboard')}
+              className="px-10 py-4 bg-white text-indigo-600 rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105 font-bold text-lg flex items-center gap-3"
+            >
+              <span>Go to Dashboard</span>
+              <ArrowRight className="size-6" />
+            </button>
+          </div>
+        </div>
+      </section>
+
       <AnalyticsDashboard />
 
       <section className="relative py-20 mt-20 overflow-hidden">
@@ -2859,8 +3218,8 @@ export default function App() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <div className="size-10">
-                  <img src={newLogo} alt="InternAI" className="size-full object-contain" />
+                <div className="size-10 rounded-lg overflow-hidden">
+                  <img src={newLogo} alt="InternAI" className="size-full object-cover aspect-square" />
                 </div>
                 <span className="text-2xl font-bold bg-gradient-to-r from-blue-300 to-purple-300 bg-clip-text text-transparent">
                   {t.appName}
@@ -2962,7 +3321,7 @@ export default function App() {
               <div className="flex items-center gap-4 flex-wrap justify-center">
                 <div className="flex items-center gap-2">
                   <Globe className="size-4" />
-                  <span className="font-medium">{language === 'en' ? 'English (India)' : language === 'hi' ? 'हिन्दी (भारत)' : 'Language'}</span>
+                  <span className="font-medium">English (India)</span>
                 </div>
                 <a href="#" className="hover:text-indigo-600 hover:underline">Privacy</a>
                 <a href="#" className="hover:text-indigo-600 hover:underline">Terms of Use</a>
@@ -3001,14 +3360,52 @@ export default function App() {
         <AccessibilityToolbar />
 
         {currentPage === 'home' && <HomePage />}
-        {currentPage === 'student-login' && <StudentLoginPage />}
-        {currentPage === 'student-signup' && <StudentSignupPage />}
-        {currentPage === 'org-login' && <OrganizationLoginPage />}
-        {currentPage === 'org-signup' && <OrganizationSignupPage />}
+        {currentPage === 'student-login' && (
+          <StudentLoginPage 
+            email={studentLoginEmail}
+            onEmailChange={handleStudentLoginEmailChange}
+            password={studentLoginPassword}
+            onPasswordChange={handleStudentLoginPasswordChange}
+            showPassword={showPassword}
+            setShowPassword={setShowPassword}
+            setCurrentPage={setCurrentPage}
+            t={t}
+          />
+        )}
+        {currentPage === 'student-signup' && (
+          <StudentSignupPage 
+            t={t}
+            setCurrentPage={setCurrentPage}
+            setSignupUserData={setSignupUserData}
+            hasResumeUploaded={hasResumeUploaded}
+            selectedDomains={selectedDomains}
+            matchedInternships={matchedInternships}
+            countryCodes={countryCodes}
+            colleges={colleges}
+            indianCities={indianCities}
+            degrees={degrees}
+            ResumeUploadSection={ResumeUploadJSX}
+            DomainSelectorSection={DomainSelectorJSX}
+          />
+        )}
+        {currentPage === 'org-login' && (
+          <OrganizationLoginPage 
+            t={t} 
+            setCurrentPage={setCurrentPage} 
+          />
+        )}
+        {currentPage === 'org-signup' && (
+          <OrganizationSignupPage 
+            t={t} 
+            setCurrentPage={setCurrentPage} 
+          />
+        )}
         {currentPage === 'gov-internships' && <GovInternshipsPage />}
         {currentPage === 'mnc-internships' && <MNCInternshipsPage />}
         {currentPage === 'matched-internships' && <MatchedInternshipsPage />}
         {currentPage === 'career-roadmap' && <CareerRoadmapPage />}
+        {currentPage === 'ai-assistant' && <AIAssistantPage onNavigate={setCurrentPage} />}
+        {currentPage === 'student-dashboard' && <StudentDashboard matchedInternships={matchedInternships} selectedDomains={selectedDomains} onNavigate={setCurrentPage} />}
       </div>
 
       {/* Accessibility CSS */}

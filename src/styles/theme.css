@@ -192,4 +192,22 @@
   .animate-shimmer {
     animation: shimmer 1.5s infinite;
   }
+
+  /* Mobile responsive utilities */
+  @media (max-width: 640px) {
+    html {
+      font-size: 14px;
+    }
+  }
+
+  @media (min-width: 641px) and (max-width: 768px) {
+    html {
+      font-size: 15px;
+    }
+  }
+
+  /* Ensure inputs maintain focus */
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+  }
 }
