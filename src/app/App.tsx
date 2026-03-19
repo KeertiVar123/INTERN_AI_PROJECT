@@ -2961,12 +2961,12 @@ Generated on: ${new Date().toLocaleDateString()}
               {t.subtitle}
             </p>
 
-            <div className="max-w-5xl mx-auto mt-8 relative">
+            <div className="max-w-7xl mx-auto mt-8 relative">
               <div className="relative overflow-hidden rounded-2xl">
                 <ImageWithFallback
                   src={heroImage}
                   alt="Students working"
-                  className="w-full h-80 object-cover"
+                  className="w-full h-[500px] object-cover"
                 />
                 {/* Gradient mask overlay for soft edge blending */}
                 <div className="absolute inset-0 pointer-events-none" style={{
