@@ -2961,7 +2961,7 @@ Generated on: ${new Date().toLocaleDateString()}
               {t.subtitle}
             </p>
 
-            <div className="max-w-7xl mx-auto mt-8 relative">
+            {/* <div className="max-w-7xl mx-auto mt-8 relative">
               <div className="relative overflow-hidden rounded-2xl">
                 <ImageWithFallback
                   src={heroImage}
@@ -2973,7 +2973,29 @@ Generated on: ${new Date().toLocaleDateString()}
                   background: 'linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 15%, rgba(255,255,255,0) 85%, rgba(255,255,255,0.3) 100%), linear-gradient(to right, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 10%, rgba(255,255,255,0) 90%, rgba(255,255,255,0.2) 100%)'
                 }}></div>
               </div>
-            </div>
+            </div> */}
+
+        <motion.div
+  className="max-w-7xl mx-auto mt-8 relative"
+  initial={{ opacity: 0, y: 60, scale: 0.95 }}
+  animate={{ opacity: 1, y: 0, scale: 1 }}
+  transition={{ duration: 0.9, ease: "easeOut", delay: 0.3 }}
+>
+  <motion.div
+    className="relative overflow-hidden rounded-2xl shadow-2xl"
+    whileHover={{ scale: 1.01 }}
+    transition={{ duration: 0.3 }}
+  >
+    <ImageWithFallback
+      src={heroImage}
+      alt="Students working"
+      className="w-full h-[500px] object-cover"
+    />
+    <div className="absolute inset-0 pointer-events-none" style={{
+      background: 'linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 15%, rgba(255,255,255,0) 85%, rgba(255,255,255,0.3) 100%), linear-gradient(to right, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 10%, rgba(255,255,255,0) 90%, rgba(255,255,255,0.2) 100%)'
+    }}></div>
+  </motion.div>
+</motion.div>
             
             <div className="flex flex-col sm:flex-row gap-6 justify-center items-center pt-8">
               <button 
